@@ -111,8 +111,7 @@ scrollMainToTop();
     const dy = currentY - startY;
 
     // Activate horizontal drag only when horizontal intent is clear
-    if (!isDragging) {
-      if (Math.abs(dx) > 20 && Math.abs(dx) > Math.abs(dy)) {
+    if (!isDragging) { if (Math.abs(dx) > 40 && Math.abs(dx) > 1.5 * Math.abs(dy)) {
         isDragging = true;
       } else {
         return; // let browser handle vertical scroll
@@ -131,11 +130,8 @@ scrollMainToTop();
 
     // thresholds
     const width = getWidth();
-    const DIST_THRESHOLD = Math.min(0.33 * width, 240); // 33% or 240px
-    const VELO_THRESHOLD = 0.6 / 1000 * width; // scaled by width
-
-    let moved = false;
-    if (isDragging) {
+    const DIST_THRESHOLD = Math.min(0.7 * width, 500); // 70% or 500px
+    const VELO_THRESHOLD = 1.2; // px per ms (~1200 px/s)ng) {
       if (Math.abs(dx) > DIST_THRESHOLD || Math.abs(vx) > VELO_THRESHOLD) {
         if (dx < 0 && currentSlide < totalSlides - 1) { currentSlide++; moved = true; }
         if (dx > 0 && currentSlide > 0) { currentSlide--; moved = true; }
