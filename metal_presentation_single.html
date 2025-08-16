@@ -615,16 +615,51 @@ document.addEventListener('keydown', (e) => {
   }
 });
 // Touch
+// Touch gestures
 let startX = 0, startY = 0;
-document.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; });
+let lastTouchEndTs = 0;
+
+// Prevent double-tap zoom (keep pinch-zoom)
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if (now - lastTouchEndTs < 300) {
+    e.preventDefault();
+  }
+  lastTouchEndTs = now;
+}, { passive: false });
+
+document.addEventListener('touchstart', (e) => {
+  const t = e.touches[0];
+  startX = t.clientX; startY = t.clientY;
+}, { passive: true });
+
 document.addEventListener('touchend', (e) => {
   if (!startX && !startY) return;
-  const endX = e.changedTouches[0].clientX; const endY = e.changedTouches[0].clientY;
-  const diffX = startX - endX; const diffY = startY - endY;
-  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) { if (diffX > 0) nextSlide(); else previousSlide(); }
+  const changed = e.changedTouches[0];
+  const diffX = startX - changed.clientX;
+  const diffY = startY - changed.clientY;
+
+  // 1) Vertical swipe ANYWHERE to change slide
+  if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 50) {
+    if (diffY > 0) { nextSlide(); } else { previousSlide(); }
+    startX = 0; startY = 0;
+    return;
+  }
+
+  // 2) Horizontal swipe ONLY if started/ended on an image swipe-zone
+  if (e.target.closest('.swipe-zone')) {
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      if (diffX > 0) nextSlide(); else previousSlide();
+      startX = 0; startY = 0;
+      return;
+    }
+  }
   startX = 0; startY = 0;
-});
+}, { passive: false });
+
+markSwipeZones();
 updateSlide();
+
 </script>
 </body>
 </html>
