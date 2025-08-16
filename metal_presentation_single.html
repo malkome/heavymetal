@@ -137,11 +137,15 @@ body {
 
 /* --- Custom modifications (2025-08-16) --- */
 .nav-btn {
-  padding: 6px 12px !important;
-  font-size: 0.85rem !important;
-  border-radius: 16px !important;
+  padding: 10px 14px;
+  font-size: 1.2rem;
+  border-radius: 50%; /* ボタンを円形にする */
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
 /* --- Mobile stability & swipe improvements (2025-08-16) --- */
 :root { --vh: 1vh; }
 .presentation { height: calc(var(--vh, 1vh) * 100); }
@@ -1197,8 +1201,8 @@ DAWと動画文化が精密演奏を可視化。「リズムを支える人」�
     <!-- Navigation -->
      
     <div class="navigation">
-      <button class="nav-btn" id="prev-btn">◀ 前へ</button>
-      <button class="nav-btn" id="next-btn">次へ ▶</button>
+      <button class="nav-btn" id="prev-btn">◀</button>
+      <button class="nav-btn" id="next-btn">▶</button>
     </div>
     <div class="slide-indicators" id="indicators"></div>
   </div>
