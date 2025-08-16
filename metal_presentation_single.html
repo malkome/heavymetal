@@ -1177,193 +1177,199 @@ DAWと動画文化が精密演奏を可視化。「リズムを支える人」�
   </div>
 
 
-  <script>
-    // --- Viewport height lock (mobile) ---
-    (function() {
-      function setVh() {
-        const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
-        document.documentElement.style.setProperty('--vh', vh + 'px');
-      }
-      let rafId = null;
-      function onResize() {
-        if (rafId) cancelAnimationFrame(rafId);
-        rafId = requestAnimationFrame(setVh);
-      }
-      setVh();
-      window.addEventListener('resize', onResize);
-      window.addEventListener('orientationchange', onResize);
-    })();
+<script>
+    // --- Viewport height lock (mobile) ---
+    (function() {
+      function setVh() {
+        const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
+        document.documentElement.style.setProperty('--vh', vh + 'px');
+      }
+      let rafId = null;
+      function onResize() {
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(setVh);
+      }
+      setVh();
+      window.addEventListener('resize', onResize);
+      window.addEventListener('orientationchange', onResize);
+    })();
 
 
-    function scrollMainToTop() {
-      const mc = document.querySelector('.main-content');
-      if (mc) {
-        try {
-          // Instant jump to top to avoid visible delay on slide switch
-          mc.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-        } catch(e) {
-          mc.scrollTop = 0;
-          mc.scrollLeft = 0;
-        }
-      }
-    }
+    function scrollMainToTop() {
+      const mc = document.querySelector('.main-content');
+      if (mc) {
+        try {
+          // Instant jump to top to avoid visible delay on slide switch
+          mc.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        } catch(e) {
+          mc.scrollTop = 0;
+          mc.scrollLeft = 0;
+        }
+      }
+    }
 
-    // --- スライドショーのコア機能 ---
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.slide');
-    const totalSlides = slides.length;
-    const slidesContainer = document.getElementById('slides-container');
-    const currentSlideSpan = document.getElementById('current-slide');
-    const totalSlidesSpan = document.getElementById('total-slides');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const indicatorsContainer = document.getElementById('indicators');
+    // --- スライドショーのコア機能 ---
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const slidesContainer = document.getElementById('slides-container');
+    const currentSlideSpan = document.getElementById('current-slide');
+    const totalSlidesSpan = document.getElementById('total-slides');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const indicatorsContainer = document.getElementById('indicators');
 
-    function updateSlide() {
-      slidesContainer.style.transform = `translate3d(${-currentSlide * slidesContainer.clientWidth}px,0,0)`;
-      currentSlideSpan.textContent = currentSlide + 1;
-      prevBtn.disabled = currentSlide === 0;
-      nextBtn.disabled = currentSlide === totalSlides - 1;
-      const indicators = document.querySelectorAll('.indicator');
-      indicators.forEach((el, idx) => el.classList.toggle('active', idx === currentSlide));
-      scrollMainToTop();
-    }
-    
-    function nextSlide() { 
-      if (currentSlide < totalSlides - 1) { 
-        currentSlide++; 
-        updateSlide();
-      } 
-    }
-    
-    function previousSlide() { 
-      if (currentSlide > 0) { 
-        currentSlide--; 
-        updateSlide();
-      } 
-    }
-    
-    function goToSlide(index) { 
-      if (index >= 0 && index < totalSlides) { 
-        currentSlide = index; 
-        updateSlide();
-      } 
-    }
+    function updateSlide() {
+      slidesContainer.style.transform = `translate3d(${-currentSlide * slidesContainer.clientWidth}px,0,0)`;
+      currentSlideSpan.textContent = currentSlide + 1;
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === totalSlides - 1;
+      const indicators = document.querySelectorAll('.indicator');
+      indicators.forEach((el, idx) => el.classList.toggle('active', idx === currentSlide));
+      scrollMainToTop();
+    }
+    
+    function nextSlide() { 
+      if (currentSlide < totalSlides - 1) { 
+        currentSlide++; 
+        updateSlide();
+      } 
+    }
+    
+    function previousSlide() { 
+      if (currentSlide > 0) { 
+        currentSlide--; 
+        updateSlide();
+      } 
+    }
+    
+    function goToSlide(index) { 
+      if (index >= 0 && index < totalSlides) { 
+        currentSlide = index; 
+        updateSlide();
+      } 
+    }
 
-    // --- 初期化処理とイベントリスナーの設定 ---
-    document.addEventListener('DOMContentLoaded', () => {
-      // 総スライド数を表示
-      totalSlidesSpan.textContent = totalSlides;
+    // ウィンドウのリサイズ時にスライド位置を更新する関数
+    function handleResize() {
+      updateSlide();
+    }
+
+    // --- 初期化処理とイベントリスナーの設定 ---
+    document.addEventListener('DOMContentLoaded', () => {
+      // 総スライド数を表示
+      totalSlidesSpan.textContent = totalSlides;
+
+      // ボタンにイベントリスナーを追加
+      if (prevBtn) prevBtn.addEventListener('click', previousSlide);
+      if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+
+      // ウィンドウリサイズイベントにリスナーを追加
+      window.addEventListener('resize', handleResize);
+
+      // キーボードイベント
+      document.addEventListener('keydown', (e) => {
+        switch(e.key) {
+          case 'ArrowRight':
+          case ' ':
+            e.preventDefault();
+            nextSlide();
+            break;
+          case 'ArrowLeft':
+            e.preventDefault();
+            previousSlide();
+            break;
+          case 'Home':
+            e.preventDefault();
+            goToSlide(0);
+            break;
+          case 'End':
+            e.preventDefault();
+            goToSlide(totalSlides - 1);
+            break;
+        }
+      });
+      
+      // 初回表示
+      updateSlide();
+    });
 
 
+    // --- 修正されたスワイプ処理（縦スクロール対応） ---
+    (function() {
+      const container = document.getElementById('slides-container');
+      if (!container) return;
 
-      // ボタンにイベントリスナーを追加
-      if (prevBtn) prevBtn.addEventListener('click', previousSlide);
-      if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+      let startX = 0, startY = 0, isDragging = false;
+      let currentX = 0, currentY = 0;
+      let startTime = 0;
+      let baseOffset = 0;
 
-      // キーボードイベント
-      document.addEventListener('keydown', (e) => {
-        switch(e.key) {
-          case 'ArrowRight':
-          case ' ':
-            e.preventDefault();
-            nextSlide();
-            break;
-          case 'ArrowLeft':
-            e.preventDefault();
-            previousSlide();
-            break;
-          case 'Home':
-            e.preventDefault();
-            goToSlide(0);
-            break;
-          case 'End':
-            e.preventDefault();
-            goToSlide(totalSlides - 1);
-            break;
-        }
-      });
-      
-      // 初回表示
-      updateSlide();
-    });
+      function getWidth() { return container.clientWidth; }
+      function setTranslate(px) { container.style.transform = `translate3d(${px}px, 0, 0)`; }
 
+      function onTouchStart(e) {
+        const t = e.touches[0];
+        startX = currentX = t.clientX;
+        startY = currentY = t.clientY;
+        startTime = performance.now();
+        baseOffset = -currentSlide * getWidth();
+        isDragging = false;
+        container.classList.add('dragging');
+      }
 
-    // --- 修正されたスワイプ処理（縦スクロール対応） ---
-    (function() {
-      const container = document.getElementById('slides-container');
-      if (!container) return;
+      function onTouchMove(e) {
+        if (!startTime) return;
+        const t = e.touches[0];
+        currentX = t.clientX;
+        currentY = t.clientY;
+        const dx = currentX - startX;
+        const dy = currentY - startY;
 
-      let startX = 0, startY = 0, isDragging = false;
-      let currentX = 0, currentY = 0;
-      let startTime = 0;
-      let baseOffset = 0;
+        if (!isDragging) {
+          if (Math.abs(dx) > 30 && Math.abs(dx) > 1.8 * Math.abs(dy)) {
+            isDragging = true;
+            e.preventDefault();
+          } else {
+            return;
+          }
+        } else {
+          e.preventDefault();
+        }
+        
+        setTranslate(baseOffset + dx);
+      }
 
-      function getWidth() { return container.clientWidth; }
-      function setTranslate(px) { container.style.transform = `translate3d(${px}px, 0, 0)`; }
+      function onTouchEnd() {
+        if (!startTime) return;
 
-      function onTouchStart(e) {
-        const t = e.touches[0];
-        startX = currentX = t.clientX;
-        startY = currentY = t.clientY;
-        startTime = performance.now();
-        baseOffset = -currentSlide * getWidth();
-        isDragging = false;
-        container.classList.add('dragging');
-      }
+        const dt = Math.max(1, performance.now() - startTime);
+        const dx = currentX - startX;
+        const vx = dx / dt;
 
-      function onTouchMove(e) {
-        if (!startTime) return;
-        const t = e.touches[0];
-        currentX = t.clientX;
-        currentY = t.clientY;
-        const dx = currentX - startX;
-        const dy = currentY - startY;
+        const width = getWidth();
+        const DIST_THRESHOLD = Math.min(0.25 * width, 150);
+        const VEL_THRESHOLD = 0.5;
 
-        if (!isDragging) {
-          if (Math.abs(dx) > 30 && Math.abs(dx) > 1.8 * Math.abs(dy)) {
-            isDragging = true;
-            e.preventDefault();
-          } else {
-            return;
-          }
-        } else {
-          e.preventDefault();
-        }
-        
-        setTranslate(baseOffset + dx);
-      }
+        container.classList.remove('dragging');
+        startTime = 0;
 
-      function onTouchEnd() {
-        if (!startTime) return;
+        if (isDragging) {
+          if (dx < -DIST_THRESHOLD || (dx < 0 && vx < -VEL_THRESHOLD)) {
+            nextSlide();
+          } else if (dx > DIST_THRESHOLD || (dx > 0 && vx > VEL_THRESHOLD)) {
+            previousSlide();
+          } else {
+            updateSlide();
+          }
+        }
+        isDragging = false;
+      }
 
-        const dt = Math.max(1, performance.now() - startTime);
-        const dx = currentX - startX;
-        const vx = dx / dt;
-
-        const width = getWidth();
-        const DIST_THRESHOLD = Math.min(0.25 * width, 150);
-        const VEL_THRESHOLD = 0.5;
-
-        container.classList.remove('dragging');
-        startTime = 0;
-
-        if (isDragging) {
-          if (dx < -DIST_THRESHOLD || (dx < 0 && vx < -VEL_THRESHOLD)) {
-            nextSlide();
-          } else if (dx > DIST_THRESHOLD || (dx > 0 && vx > VEL_THRESHOLD)) {
-            previousSlide();
-          } else {
-            updateSlide();
-          }
-        }
-        isDragging = false;
-      }
-
-      container.addEventListener('touchstart', onTouchStart);
-      container.addEventListener('touchmove', onTouchMove, { passive: false });
-      container.addEventListener('touchend', onTouchEnd);
-    })();
-  </script>
+      container.addEventListener('touchstart', onTouchStart);
+      container.addEventListener('touchmove', onTouchMove, { passive: false });
+      container.addEventListener('touchend', onTouchEnd);
+    })();
+</script>
 </body>
 </html>
