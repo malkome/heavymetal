@@ -1171,23 +1171,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-  document.addEventListener("DOMContentLoaded", () => {
-  // 全スライドを走査
-  document.querySelectorAll(".slide").forEach(slide => {
-    const h2 = slide.querySelector("h2");
-    const img = slide.querySelector("img.title-image-top");
-    if (h2 && img) {
-      // ラッパーを作成
-      const wrapper = document.createElement("div");
-      wrapper.className = "hero-band";
-      wrapper.setAttribute("data-band", h2.textContent.trim());
 
-      // img をラッパーに移動
-      img.parentNode.insertBefore(wrapper, img);
-      wrapper.appendChild(img);
-    }
-  });
-});
 </script>
 </body>
 </html>
