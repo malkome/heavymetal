@@ -81,10 +81,14 @@ body {
 @media (max-width: 900px) { .photo-row.two, .photo-row.three, .split-slide { grid-template-columns: 1fr; } }
 @media (max-width: 768px) { .slide { padding: 20px; } .slide h2 { font-size: 1.9rem; } .big-title { font-size: 2.6rem; } }
 
-/* === Gesture & Zoom Hardening (stable) === */
+/* === Gesture & Zoom Hardening (v5) === */
 html, body { touch-action: manipulation; overscroll-behavior-x: none; }
 .slides-container { touch-action: pan-y pinch-zoom; }
-.split-image img, .timeline-hero-image img, .photo-card img { touch-action: pan-y pinch-zoom; -webkit-user-drag: none; user-select: none; }
+.split-image img, .timeline-hero-image img, .photo-card img {
+  touch-action: pan-y pinch-zoom;
+  -webkit-user-drag: none;
+  user-select: none;
+}
 
 </style>
 </head>
@@ -604,27 +608,19 @@ document.addEventListener('keydown', (e) => {
     case 'End': e.preventDefault(); goToSlide(totalSlides - 1); break;
   }
 });
-// Touch / Pointer Gestures (stable)
+// Touch / Pointer Gestures (v5 robust)
 let startX = 0, startY = 0, startTarget = null, activePointerId = null;
-let lastTouchEndTs = 0;
-const SWIPE_THRESHOLD = 50;
-
-// Double-tap zoom prevention (keep pinch allowed)
-document.addEventListener('touchend', (e) => {
-  const now = Date.now();
-  if (now - lastTouchEndTs < 300) {
-    e.preventDefault();
-  }
-  lastTouchEndTs = now;
-}, { passive: false });
+const SWIPE_THRESHOLD = 40; // a bit lower for reliability
 
 function isImageSwipeZone(el) {
   return !!(el && (el.closest('.split-image img') || el.closest('.timeline-hero-image img') || el.closest('.photo-card img')));
 }
 
-// Use pointer events within main slide area
-const gestureScope = document.querySelector('.main-content');
-gestureScope.addEventListener('pointerdown', (e) => {
+// Prevent double-tap zoom without killing pinch-zoom
+document.addEventListener('dblclick', (e) => { e.preventDefault(); }, { passive: false });
+
+const scope = document.querySelector('.presentation'); // wide scope
+scope.addEventListener('pointerdown', (e) => {
   if (e.pointerType === 'touch' || e.pointerType === 'pen') {
     activePointerId = e.pointerId;
     startX = e.clientX;
@@ -633,29 +629,28 @@ gestureScope.addEventListener('pointerdown', (e) => {
   }
 });
 
-gestureScope.addEventListener('pointerup', (e) => {
+document.addEventListener('pointerup', (e) => {
   if (e.pointerId !== activePointerId) return;
   const dx = e.clientX - startX;
   const dy = e.clientY - startY;
 
-  // Vertical swipe ANYWHERE (down => next, up => previous)
+  // Vertical swipe ANYWHERE: down => next, up => previous
   if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > SWIPE_THRESHOLD) {
     if (dy > 0) { nextSlide(); } else { previousSlide(); }
     startX = startY = 0; startTarget = null; activePointerId = null;
     return;
   }
-
   // Horizontal swipe ONLY on images
   if (isImageSwipeZone(startTarget)) {
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > SWIPE_THRESHOLD) {
       if (dx < 0) { nextSlide(); } else { previousSlide(); }
-      startX = startY = 0; startTarget = null; activePointerId = null;
-      return;
     }
   }
-
   startX = startY = 0; startTarget = null; activePointerId = null;
 });
+
+document.addEventListener('pointercancel', () => { startX = startY = 0; startTarget = null; activePointerId = null; });
+
 updateSlide();
 
 </script>
