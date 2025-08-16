@@ -21,7 +21,7 @@ body {
   overflow: hidden;
 }
 /* Header */
-.presentation { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; }
+.presentation { position: relative; width: 100vw; height: 100dvh; display: flex; flex-direction: column; }
 .header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 20px 40px; background: rgba(0,0,0,0.6);
@@ -32,7 +32,7 @@ body {
 /* Slides */
 .main-content { flex: 1; position: relative; overflow: hidden; }
 .slides-container { display: flex; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4,0,0.2,1); }
-.slide { min-width: 100%; padding: 40px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+.slide { min-width: 100%; padding: 40px; display: flex; flex-direction: column; justify-content: flex-start; position: relative; }
 .slide.title-slide { align-items: center; text-align: center; background: radial-gradient(circle at center, rgba(255,136,0,0.15), transparent); }
 .slide.title-slide h2 { font-size: 3.2rem; margin: 0 0 20px; color: var(--accent); text-shadow: 0 4px 8px rgba(0,0,0,0.7); }
 .slide.title-slide .subtitle { font-size: 1.6rem; color: var(--accent2); opacity: 0.9; }
@@ -73,3 +73,37 @@ body {
 @media (max-width: 1024px) { .photo-card img { height: 210px; } }
 @media (max-width: 900px) { .photo-row.two, .photo-row.three, .split-slide { grid-template-columns: 1fr; } }
 @media (max-width: 768px) { .slide { padding: 20px; } .slide h2 { font-size: 1.9rem; } .big-title { font-size: 2.6rem; } }
+
+/* --- Mobile safe area & viewport fixes --- */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+.header { position: sticky; top: 0; }
+@supports (height: 100svh) {
+  .presentation { height: 100svh; }
+}
+@media (max-width: 768px) {
+  .main-content { overflow: auto; }
+  .navigation { bottom: 16px; }
+  .slide-indicators { bottom: 64px; }
+}
+
+.slide.title-slide { justify-content: center; align-items: center; }
+
+/* --- Mobile touch target improvements --- */
+@media (max-width: 768px) {
+  .nav-btn { min-width: 56px; min-height: 56px; font-size: 1rem; padding: 0 16px; border-radius: 16px; }
+  .indicator { width: 14px; height: 14px; }
+  .slide { padding-top: 24px; }
+}
+
+
+/* --- Custom modifications (2025-08-16) --- */
+.slide-indicators { display: none !important; }
+.nav-btn {
+  padding: 6px 12px !important;
+  font-size: 0.85rem !important;
+  border-radius: 16px !important;
+}

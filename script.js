@@ -1,3 +1,17 @@
+
+function scrollMainToTop() {
+  const mc = document.querySelector('.main-content');
+  if (mc) {
+    try {
+      // Instant jump to top to avoid visible delay on slide switch
+      mc.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    } catch(e) {
+      mc.scrollTop = 0;
+      mc.scrollLeft = 0;
+    }
+  }
+}
+
 let currentSlide = 0;
 const slides = document.querySelectorAll('.slide');
 const totalSlides = slides.length;
@@ -25,9 +39,15 @@ function updateSlide() {
   const indicators = document.querySelectorAll('.indicator');
   indicators.forEach((el, idx) => el.classList.toggle('active', idx === currentSlide));
 }
-function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); } }
-function previousSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } }
-function goToSlide(index) { if (index >= 0 && index < totalSlides) { currentSlide = index; updateSlide(); } }
+function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide();
+// ensure top after init
+scrollMainToTop(); } }
+function previousSlide() { if (currentSlide > 0) { currentSlide--; updateSlide();
+// ensure top after init
+scrollMainToTop(); } }
+function goToSlide(index) { if (index >= 0 && index < totalSlides) { currentSlide = index; updateSlide();
+// ensure top after init
+scrollMainToTop(); } }
 // Keyboard
 document.addEventListener('keydown', (e) => {
   switch(e.key) {
@@ -48,3 +68,5 @@ document.addEventListener('touchend', (e) => {
   startX = 0; startY = 0;
 });
 updateSlide();
+// ensure top after init
+scrollMainToTop();
