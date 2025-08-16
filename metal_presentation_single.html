@@ -225,6 +225,9 @@ body {
   color: var(--accent2);
   opacity: 0.95;
 }
+   .slide-indicators { 
+  display: none !important;
+}
 </style>
 </head>
 <body>
@@ -1191,6 +1194,7 @@ DAWと動画文化が精密演奏を可視化。「リズムを支える人」�
     </div>
 
     <!-- Navigation -->
+     
     <div class="navigation">
       <button class="nav-btn" id="prev-btn">◀ 前へ</button>
       <button class="nav-btn" id="next-btn">次へ ▶</button>
@@ -1276,16 +1280,7 @@ DAWと動画文化が精密演奏を可視化。「リズムを支える人」�
       // 総スライド数を表示
       totalSlidesSpan.textContent = totalSlides;
 
-      // インジケーターを作成
-      if (indicatorsContainer) {
-        indicatorsContainer.innerHTML = '';
-        for (let i = 0; i < totalSlides; i++) {
-          const indicator = document.createElement('div');
-          indicator.classList.add('indicator');
-          indicator.addEventListener('click', () => goToSlide(i));
-          indicatorsContainer.appendChild(indicator);
-        }
-      }
+
 
       // ボタンにイベントリスナーを追加
       if (prevBtn) prevBtn.addEventListener('click', previousSlide);
