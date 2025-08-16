@@ -81,11 +81,10 @@ body {
 @media (max-width: 900px) { .photo-row.two, .photo-row.three, .split-slide { grid-template-columns: 1fr; } }
 @media (max-width: 768px) { .slide { padding: 20px; } .slide h2 { font-size: 1.9rem; } .big-title { font-size: 2.6rem; } }
 
-/* === Gesture Hardening === */
-html, body { overscroll-behavior-x: none; touch-action: manipulation; } /* prevent accidental double-tap zoom */
-.slides-container { touch-action: pan-y !important; } /* lock to vertical for default scrolling */
-.swipe-zone { touch-action: pan-y; cursor: grab; -webkit-user-drag: none; user-select: none; }
-.swipe-zone img { -webkit-user-drag: none; }
+/* === Gesture & Zoom Hardening === */
+html, body { touch-action: manipulation; overscroll-behavior-x: none; }
+.slides-container { touch-action: pan-y pinch-zoom; }
+.split-image img, .timeline-hero-image img, .photo-card img { touch-action: pan-y pinch-zoom; -webkit-user-drag: none; user-select: none; }
 
 </style>
 </head>
@@ -574,15 +573,7 @@ const currentSlideSpan = document.getElementById('current-slide');
 const totalSlidesSpan = document.getElementById('total-slides');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
-\1
-
-// Mark images as swipe-enabled zones only
-function markSwipeZones() {
-  document.querySelectorAll('.split-image img, .timeline-hero-image img, .photo-card img').forEach(img => {
-    img.classList.add('swipe-zone');
-  });
-}
-
+const indicatorsContainer = document.getElementById('indicators');
 // Initialize
 totalSlidesSpan.textContent = totalSlides;
 // Create indicators
@@ -601,8 +592,7 @@ function updateSlide() {
   const indicators = document.querySelectorAll('.indicator');
   indicators.forEach((el, idx) => el.classList.toggle('active', idx === currentSlide));
 }
-function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; markSwipeZones();
-updateSlide(); } }
+function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); } }
 function previousSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } }
 function goToSlide(index) { if (index >= 0 && index < totalSlides) { currentSlide = index; updateSlide(); } }
 // Keyboard
@@ -615,51 +605,16 @@ document.addEventListener('keydown', (e) => {
   }
 });
 // Touch
-// Touch gestures
 let startX = 0, startY = 0;
-let lastTouchEndTs = 0;
-
-// Prevent double-tap zoom (keep pinch-zoom)
-document.addEventListener('touchend', (e) => {
-  const now = Date.now();
-  if (now - lastTouchEndTs < 300) {
-    e.preventDefault();
-  }
-  lastTouchEndTs = now;
-}, { passive: false });
-
-document.addEventListener('touchstart', (e) => {
-  const t = e.touches[0];
-  startX = t.clientX; startY = t.clientY;
-}, { passive: true });
-
+document.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; });
 document.addEventListener('touchend', (e) => {
   if (!startX && !startY) return;
-  const changed = e.changedTouches[0];
-  const diffX = startX - changed.clientX;
-  const diffY = startY - changed.clientY;
-
-  // 1) Vertical swipe ANYWHERE to change slide
-  if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 50) {
-    if (diffY > 0) { nextSlide(); } else { previousSlide(); }
-    startX = 0; startY = 0;
-    return;
-  }
-
-  // 2) Horizontal swipe ONLY if started/ended on an image swipe-zone
-  if (e.target.closest('.swipe-zone')) {
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-      if (diffX > 0) nextSlide(); else previousSlide();
-      startX = 0; startY = 0;
-      return;
-    }
-  }
+  const endX = e.changedTouches[0].clientX; const endY = e.changedTouches[0].clientY;
+  const diffX = startX - endX; const diffY = startY - endY;
+  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) { if (diffX > 0) nextSlide(); else previousSlide(); }
   startX = 0; startY = 0;
-}, { passive: false });
-
-markSwipeZones();
+});
 updateSlide();
-
 </script>
 </body>
 </html>
