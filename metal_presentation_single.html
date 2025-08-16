@@ -365,6 +365,61 @@ img, video, iframe {
   height: auto;
 }
 
+  /* === 画像上にバンド名バッジ（色が変わる） === */
+.hero-band {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;               /* 角丸に合わせて切り抜き */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* もとの見た目を継承 */
+.hero-band > img.title-image-top {
+  width: 100%;
+  height: auto;
+  max-height: 40vh;
+  object-fit: cover;
+  display: block;
+}
+
+/* 下辺にかぶせる半透明グラデ＋バンド名テキスト */
+.hero-band::after {
+  content: attr(data-band);       /* ← data-band の文字列が表示される */
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 10px 16px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-shadow: 0 2px 6px rgba(0,0,0,.6);
+  /* 背景の色がゆっくり循環 */
+  background: linear-gradient(90deg,
+              rgba(255,136,0,.85),
+              rgba(255,170,51,.85),
+              rgba(120,80,255,.85),
+              rgba(255,80,120,.85));
+  animation: hueShift 10s linear infinite;
+  color: #fff;
+  backdrop-filter: blur(2px);
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+
+/* ゆっくり色相が回る演出（グラデ全体に適用） */
+@keyframes hueShift {
+  0%   { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+/* モバイルでの余白＆読みやすさ微調整 */
+@media (max-width: 768px) {
+  .hero-band::after {
+    padding: 8px 12px;
+    font-size: .95rem;
+  }
+}
+
+
 </style>
 </head>
 <body>
