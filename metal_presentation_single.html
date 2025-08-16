@@ -2,10 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ヘヴィメタルの歴史 プレゼンテーション</title>
-
-  <style>
+<style>
 /* =============================
    Presentation CSS (Rebuilt v2 with interludes)
    ============================= */
@@ -29,7 +28,7 @@ body {
   overflow: hidden;
 }
 /* Header */
-.presentation { position: relative; width: 100vw; height: 100dvh; display: flex; flex-direction: column; }
+.presentation { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; }
 .header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 20px 40px; background: rgba(0,0,0,0.6);
@@ -40,7 +39,7 @@ body {
 /* Slides */
 .main-content { flex: 1; position: relative; overflow: hidden; }
 .slides-container { display: flex; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4,0,0.2,1); }
-.slide { min-width: 100%; padding: 40px; display: flex; flex-direction: column; justify-content: flex-start; position: relative; }
+.slide { min-width: 100%; padding: 40px; display: flex; flex-direction: column; justify-content: center; position: relative; }
 .slide.title-slide { align-items: center; text-align: center; background: radial-gradient(circle at center, rgba(255,136,0,0.15), transparent); }
 .slide.title-slide h2 { font-size: 3.2rem; margin: 0 0 20px; color: var(--accent); text-shadow: 0 4px 8px rgba(0,0,0,0.7); }
 .slide.title-slide .subtitle { font-size: 1.6rem; color: var(--accent2); opacity: 0.9; }
@@ -82,125 +81,12 @@ body {
 @media (max-width: 900px) { .photo-row.two, .photo-row.three, .split-slide { grid-template-columns: 1fr; } }
 @media (max-width: 768px) { .slide { padding: 20px; } .slide h2 { font-size: 1.9rem; } .big-title { font-size: 2.6rem; } }
 
-/* --- Mobile safe area & viewport fixes --- */
-body {
-  padding-top: env(safe-area-inset-top);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-}
-.header { position: sticky; top: 0; }
-@supports (height: 100svh) {
-  .presentation { height: 100svh; }
-}
-@media (max-width: 768px) {
-  .main-content { overflow: auto; }
-  .navigation { bottom: 16px; }
-  .slide-indicators { bottom: 64px; }
-}
+/* === Gesture Hardening === */
+html, body { overscroll-behavior-x: none; touch-action: manipulation; } /* prevent accidental double-tap zoom */
+.slides-container { touch-action: pan-y !important; } /* lock to vertical for default scrolling */
+.swipe-zone { touch-action: pan-y; cursor: grab; -webkit-user-drag: none; user-select: none; }
+.swipe-zone img { -webkit-user-drag: none; }
 
-.slide.title-slide { justify-content: center; align-items: center; }
-
-/* --- Mobile touch target improvements --- */
-@media (max-width: 768px) {
-  .nav-btn { min-width: 56px; min-height: 56px; font-size: 1rem; padding: 0 16px; border-radius: 16px; }
-  .indicator { width: 14px; height: 14px; }
-  .slide { padding-top: 24px; }
-}
-
-
-/* --- Custom modifications (2025-08-16) --- */
-/* .slide-indicators { display: none !important; }  -- disabled by hotfix */
-.nav-btn {
-  padding: 6px 12px !important;
-  font-size: 0.85rem !important;
-  border-radius: 16px !important;
-}
-
-
-/* --- Mobile stability & swipe improvements (2025-08-16) --- */
-:root { --vh: 1vh; }
-.presentation { height: calc(var(--vh, 1vh) * 100); }
-.main-content { height: calc(var(--vh, 1vh) * 100 - 64px); } /* header height approx; keeps content stable */
-.slides-container { will-change: transform; touch-action: pan-y; }
-.slides-container.dragging { transition: none !important; cursor: grabbing; }
-
-
-/* hotfix (ensure indicators visible) */
-.slide-indicators { display: flex !important; }
-
-
-/* =============================
-   Slides: two-rows / split-bottom overrides
-   (append this block at the end)
-   ============================= */
-
-/* 上部ヘッダを中央にドーン */
-.two-rows .full-text h2{
-  text-align: center;
-  font-size: 2em;
-  margin: 0 0 12px 0;
-}
-
-/* 下部を左右2分割（デスクトップ） */
-.two-rows .split-bottom{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
-/* 歌詞ブロック：行間ギリギリ＆余白最小化 */
-.two-rows .split-bottom .lyrics blockquote{
-  line-height: 1;      /* ←ご指定どおり 1 に */
-  margin: 0;           /* 上下の余白をカット */
-  padding: 0;
-}
-.two-rows .split-bottom .lyrics blockquote p{
-  margin: 0;           /* <p>の既定余白も削除 */
-}
-.two-rows .split-bottom .lyrics em{
-  font-style: italic;
-}
-
-/* 右側の画像：縦を絞って中央揃え、比率は維持 */
-.two-rows .split-bottom .image img{
-  max-height: 320px;   /* 縦の上限（280〜340で調整可） */
-  width: auto;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
-}
-.two-rows .split-bottom .image .photo-caption{
-  text-align: center;
-  margin-top: 8px;
-}
-
-/* 小さめ画面では縦並びにフォールバック */
-@media (max-width: 900px){
-  .two-rows .split-bottom{
-    grid-template-columns: 1fr;
-  }
-  .two-rows .split-bottom .image img{
-    max-height: 260px;
-  }
-}
-.two-rows .full-text .mid-title {
-  margin-top: 0;
-  margin-bottom: 12px;
-  font-size: 1.3rem;   /* 中見出しっぽく強調 */
-  font-weight: 600;
-  color: var(--accent2);
-  opacity: 0.95;
-}
-
-.two-rows .full-text .mid-title {
-  margin-top: 0;
-  margin-bottom: 20px;  /* ← 下に余白を広めに追加 */
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--accent2);
-  opacity: 0.95;
-}
 </style>
 </head>
 <body>
@@ -217,7 +103,7 @@ body {
 
         <!-- Slide 1: タイトル -->
         <div class="slide title-slide">
-          <h2>ヘヴィーメタルの歴史</h2>
+          <h2>メタルの歴史</h2>
           <div class="subtitle">ロック・ミュージックの世界的席巻からヘヴィーメタルの誕生まで</div>
         </div>
 
@@ -245,15 +131,15 @@ body {
           <div class="photo-row three">
             <div class="photo-card">
               <img src="https://m.media-amazon.com/images/I/71qLUg91oYL._UF1000,1000_QL80_.jpg" alt="エド・サリヴァン・ショー" loading="lazy" />
-              <div class="photo-caption"><strong>エド・サリヴァン・ショー：</strong> 1964年2月9日、ビートルズはエド・サリヴァン・ショーに出演し、全米で約7300万人が視聴した。アメリカのテレビ史に残るこの瞬間は、若者文化を一変させ、“ブリティッシュ・インベージョン”の幕開けを象徴する出来事となった。</div>
+              <div class="photo-caption"><strong>エド・サリヴァン・ショー：</strong> 1964年2月9日、ビートルズはエド・サリヴァン・ショーに出演し、全米で約7300万人が視聴した。アメリカのテレビ史に残るこの瞬間は、若者文化を一変させ、“ブリティッシュ・インベージョン”の幕開けを象徴する出来事となった。親世代の懐疑をよそに熱狂が全土へ拡大し、ビートルズは単なる人気バンドを超え、時代精神を体現する存在として世界的なアイコンへと飛躍していった。</div>
             </div>
             <div class="photo-card">
               <img src="https://www.thebeatles.com/sites/default/files/styles/max_1300x1300/public/2021-06/Shea-23.jpg?itok=sCukR87i" alt="シェイ・スタジアム" loading="lazy" />
-              <div class="photo-caption"><strong>シェイ・スタジアム：</strong> 1965年8月15日、ニューヨークのシェイ・スタジアムで史上初の大規模野球場コンサートを開催。観客5万5千人を熱狂させたが音響技術が追いつかず、演奏はほとんど歓声により聞き取れなかったとされる。</div>
+              <div class="photo-caption"><strong>シェイ・スタジアム：</strong> 1965年8月15日、ビートルズはニューヨークのシェイ・スタジアムで史上初の大規模野球場コンサートを開催。観客5万5千人を熱狂させたが、当時の音響技術は巨大な歓声に対応できず、演奏はほとんど聞き取れなかったとされる。この体験は彼らに消耗感を与え、翌1966年を最後にツアー活動を停止。以降はスタジオワークへ専念し、『Revolver』『Sgt. Pepper’s』といった革新的作品へと歩を進める契機となった。。</div>
             </div>
             <div class="photo-card">
               <img src="https://merurido.jp/dropbox/bnr_image/foto_1490930315.jpg" alt="サージェント・ペッパーズ" loading="lazy" />
-              <div class="photo-caption"><strong>サージェント・ペッパーズ：</strong>1967年発表。多重録音やシンセ、オーケストラを駆使し、サイケデリックからインド音楽までを融合。アルバム全体を一つのコンセプトで貫く手法は革新的で、ロックを大衆娯楽から芸術の域へと押し上げた。音楽史における最重要アルバムの一つとされる。</div>
+              <div class="photo-caption"><strong>サージェント・ペッパーズ：</strong>1967年発表の『Sgt. Pepper’s Lonely Hearts Club Band』は、ビートルズがライブ活動を終えスタジオ表現へと移行した象徴的作品。多重録音やシンセ、オーケストラを駆使し、サイケデリックからインド音楽までを融合。アルバム全体を一つのコンセプトで貫く手法は革新的で、ロックを大衆娯楽から芸術の域へと押し上げた。音楽史における最重要アルバムの一つとされる。</div>
             </div>
           </div>
         </div>
@@ -267,15 +153,15 @@ body {
           <div class="photo-row three">
             <div class="photo-card">
               <img src="https://i.discogs.com/TAzFDbIIHkC1mcbKrRDfEPAqw-P7nchuYYfHsA6SAos/rs:fit/g:sm/q:90/h:586/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTMxNDIw/ODItMTMyNTI3MzYz/MC5qcGVn.jpeg" alt="キング・クリムゾン" loading="lazy" />
-              <div class="photo-caption"><strong>キング・クリムゾン：</strong> 1969年、ビートルズが『Abbey Road』を発表した同年にキング・クリムゾンが『クリムゾン・キングの宮殿』でデビュー。ビートルズが切り開いた実験性をさらに拡張し、評論家からは「ビートルズを過去の存在にした」と評された。ポップからプログレへの大きな転換点を象徴する作品となった。</div>
+              <div class="photo-caption"><strong>キング・クリムゾン：</strong> 1969年、ビートルズが『Abbey Road』を発表した同年にキング・クリムゾンが『クリムゾン・キングの宮殿』でデビュー。ビートルズが切り開いた実験性をさらに拡張し、幻想的なメロトロンと長大な組曲形式でロックを芸術の領域へと進めた。評論家からは「ビートルズを過去の存在にした」と評され、ポップからプログレへの大きな転換点を象徴する作品となった。</div>
             </div>
             <div class="photo-card">
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Jimi_Hendrix_Mural_%28S%C3%BAnico%2C_2017%29.jpg/640px-Jimi_Hendrix_Mural_%28S%C3%BAnico%2C_2017%29.jpg" alt="ジミ・ヘンドリックス" loading="lazy" />
-              <div class="photo-caption"><strong>ジミ・ヘンドリックス：</strong> ファズやワウ、フィードバックなど当時最先端のエフェクターを駆使し、爆音でブルージーかつサイケデリックなサウンドを創出。『Purple Haze』『Voodoo Child』などの名演でギターを単なる伴奏から主役へと押し上げた。1970年、27歳で急逝したが、今も伝説のギタリストとして語り継がれている。</div>
+              <div class="photo-caption"><strong>ジミ・ヘンドリックス：</strong> 1960年代後半に登場し、ロックギターの表現を根底から変えた革命的存在。ファズやワウ、フィードバックなど当時最先端のエフェクターを駆使し、爆音でブルージーかつサイケデリックなサウンドを創出。『Purple Haze』『Voodoo Child』などの名演でギターを単なる伴奏から主役へと押し上げた。1970年、27歳で急逝するも、その短い活動は圧倒的な影響力を持ち、今も伝説のギタリストとして語り継がれている。</div>
             </div>
             <div class="photo-card">
-              <img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSikasu9kp5Du1mvEKyvNMWXnN8alKjoKUF9CW-oKLHgC0hCzL8QX-J2uBcIIjspgZd1GHtbZWuFrhEN6B1XpLCNQ" alt="レッド・ツェッペリン" loading="lazy" />
-              <div class="photo-caption"><strong>レッド・ツェッペリン：</strong> 1968年に結成され、ハードロックの先駆者として後のヘヴィメタルに直結するサウンドを確立。ギタリストのジミー・ペイジはブルースを基盤にしながらも、パワフルで反復的なリフを発展させ、ロックに重厚さとダイナミズムを与えた。</div>
+              <img src="https://media.gettyimages.com/id/74708441/ja/%E3%82%B9%E3%83%88%E3%83%83%E3%82%AF%E3%83%95%E3%82%A9%E3%83%88/robert-plant-and-jimmy-page-of-led-zeppelin-at-the-chicago-stadium-in-chicago-illinois.jpg?s=612x612&w=gi&k=20&c=9GHJiOEX18y7IPFwT9sJG95OYFTTK0SNGBM4TS5oy9Y=" alt="レッド・ツェッペリン" loading="lazy" />
+              <div class="photo-caption"><strong>レッド・ツェッペリン：</strong> 1968年に結成され、ハードロックの先駆者として後のヘヴィメタルに直結するサウンドを確立。ギタリストのジミー・ペイジはブルースを基盤にしながらも、パワフルで反復的なリフを発展させ、ロックに重厚さとダイナミズムを与えた。ロバート・プラントのハイトーン・ボーカル、ジョン・ボーナムの爆発的ドラム、ジョン・ポール・ジョーンズの多彩なアレンジも加わり、ロック史における圧倒的な存在感を放った。</div>
             </div>
           </div>
         </div>
@@ -286,7 +172,7 @@ body {
             <div class="big-title">1970's<br>ヘヴィメタルの誕生</div>
             <p>
              彼らの音楽はブルースを基盤にしつつも、意図的に低く重たいリフ、陰鬱な歌詞、暗い世界観を組み合わせたものでした。  
-工業都市バーミンガムの不穏な空気や、核戦争や社会への不安の影響を反映したそのサウンドは、当時のロックとは一線を画していました。  
+工業都市バーミンガムの不穏な空気や、戦争と社会不安の影響を反映したそのサウンドは、当時のロックとは一線を画していました。  
 
 この「重さ」と「暗さ」が独立した価値を持ち、以後のメタル・バンドが共有する“美学と文法”となっていきます。  
 
@@ -305,14 +191,14 @@ body {
           <div class="photo-row three">
             <div class="photo-card">
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Sabs.jpg/330px-Sabs.jpg" alt="Black Sabbath" loading="lazy" />
-              <div class="photo-caption"><strong>Black Sabbath：</strong> Black Sabbathは不気味で重厚なリフや暗鬱な歌詞を打ち出し、ロックから一線を画す音像を確立しました。そのサウンドはヘヴィメタルの原型となり、以後のメタル文化全般に決定的な影響を与えました。</div>
+              <div class="photo-caption"><strong>Black Sabbath：</strong> 全体的にメンバーが織り成す「気持ちが悪く不気味な」サウンドが後に「ヘヴィメタル」と呼ばれるスタイルの原型を作った。</div>
             </div>
             <div class="photo-card">
-              <img src="https://baseec-img-mng.akamaized.net/images/item/origin/71231d8d5d790709fe5af44e5a68aadb.jpg?imformat=generic" alt="Deep Purple" loading="lazy" />
+              <img src="https://wmg.jp/packages/15245/images/wpcr000080220_LLL.jpg" alt="Deep Purple" loading="lazy" />
               <div class="photo-caption"><strong>Deep Purple：</strong> クラシカル要素と技巧的な演奏で重厚さを拡張。ギタリストのリッチー・ブラックモアは後のギターヒーローたちに大きな影響を与えた。</div>
             </div>
             <div class="photo-card">
-              <img src="https://rapidvocalresults.com/wp-content/uploads/sites/2/2024/04/rob-halford-on-a-harley-on-stage-1024x1024.jpg" alt="Judas Priest" loading="lazy" />
+              <img src="https://www.loudpark.com/10/lineup/images/image_halford.jpg" alt="Judas Priest" loading="lazy" />
               <div class="photo-caption"><strong>Judas Priest：</strong> ツインギターのスピードと鋭利なリフ、そしてレザー美学でメタル像を明確化。ボーカリストのロブ・ハルフォードは“メタル・ゴッド”と称される存在</div>
             </div>
           </div>
@@ -445,9 +331,9 @@ body {
         <!-- Interlude C: 7と8の間 / グランジ台頭 -->
         <div class="slide split-slide">
           <div class="split-text">
-            <div class="big-title">1990's <br> 若者音楽の多様化<br> メタル冬の時代</div>
+            <div class="big-title">1990's <br> グランジの台頭</div>
             <p>
-1991年、Nirvanaの登場を象徴に、グランジやオルタナティブ、そしてヒップホップ文化が新しい時代を切り開いた。派手なルックスや演出で80年代を彩ったヘビーメタルは古臭いものとされ、ティーン世代から距離を置かれていく。その反動として素朴で生々しいグランジが熱狂的に受け入れられ、後半にはデスメタルやブラックメタルの過激化、さらにはヒップホップを取り込んだNu-Metalの台頭が続いた。        </div>
+1991年、Nirvanaの登場でティーンの嗜好は大きく転換し、メタルの派手なルックスや商業的演出は急速に古臭いものとみなされ始めた。反動として素朴で生々しいグランジが支持を集め、オルタナティブの波が全米を席巻。一方で地下シーンではデスメタルやブラックメタルがさらなる過激さを追求。さらに90年代後半にはリンプ・ビズキットやコーンらのNu-Metalが台頭し、ヒップホップのリズムや現代的グルーヴを取り込み、新たな“重さ”の形を提示した。          </div>
           <div class="split-image"><img src="https://m.media-amazon.com/images/I/51qpgEq-3XL._SL500_.jpg" alt="グランジの台頭" loading="lazy" /></div>
         </div>
 <!-- Slide: 90年代メタルの多様性 -->
@@ -545,41 +431,6 @@ body {
 
 
 
-<!-- Slide: コンテンツ（小タイトル＋横長写真＋2スプリット） -->
-<div class="slide">
-  <!-- スライド上部の小タイトル -->
-  <div class="slide-header">
-    <h2>2000年代の文化的・技術的な変化</h2>
-  </div>
-
-  <!-- 横長写真（中央トリミング） -->
-  <div class="header-image" style="margin: 15px 0; overflow: hidden;">
-    <img src="https://www.cnn.co.jp/storage/2018/08/07/7da168e56695b6ef4018f01511b2db79/wacken-festival-men.jpg"
-         alt="Wacken Open Airの群衆" loading="lazy"
-         style="width: 100%; height: 35vh; object-fit: cover; object-position: center;" />
-  </div>
-
-  <!-- 下部2スプリット -->
-  <div class="split-slide">
-    <!-- 左側テキスト -->
-    <div class="split-text">
-      <h2>インターネット普及</h2>
-      <p>
-        2000年代、YouTubeやSNSの普及でインディペンデントでも世界に映像・音源を発信可能になった。宅録やセルフ配信が標準化し、MySpaceからBandcampに至るネット文化が新たなファン層と国際的な交流を生んだ。
-      </p>
-    </div>
-
-    <!-- 右側テキスト -->
-    <div class="split-text">
-      <h2>国際フェス文化</h2>
-      <p>
-        WackenやDownloadなどの大型フェスが国境を越えた交流の場となり、新人発掘や共同制作の契機に。現地と配信の二層展開が、世界中のファンとの距離を縮め、シーン全体を活性化させた。日本でも2006年に初のメタルフェス「ラウドパーク」が開催された。
-      </p>
-    </div>
-  </div>
-</div>
-
-
 
 
 <!-- Slide: 2000年代 メロディック・デスメタル -->
@@ -594,7 +445,7 @@ body {
       <div class="photo-caption"><strong>In Flames：</strong> メロディック・デスメタルの代表格。初期は叙情的リフを前面に押し出し「北欧メロデス」のスタイルを確立。2000年代にはモダンな要素も導入し、シーンの進化をリードした。</div>
     </div>
     <div class="photo-card">
-      <img src="https://www.udiscovermusic.jp/wp-content/uploads/2021/01/Alex-Laiho-Getty-Images-1158942659-copy.jpg" alt="Children of Bodom" loading="lazy" />
+      <img src="https://m.media-amazon.com/images/I/51Asug2AABL._UF1000,1000_QL80_.jpg" alt="Children of Bodom" loading="lazy" />
       <div class="photo-caption"><strong>Children of Bodom：</strong> アレキシ・ライホ率いるフィンランドの雄。超絶技巧のギターとキーボードのユニゾンでクラシカルかつスピーディなサウンドを展開し、若い世代に絶大な支持を得た。</div>
     </div>
     <div class="photo-card">
@@ -606,25 +457,24 @@ body {
 
 <!-- Slide: 2000年代の多様化（6ピース） -->
 <div class="slide content-slide">
-  <h2>2000年代 多様化の時代　</h2>
-  <p>メタルジャンルが細分化し、いろいろ概念を持つようになり、各ジャンルの多様化が進んだのがこの時代。保守的なメタルとと革新的なメタルとの対立も生まれるようになる。</p>
+  <h2>2000年代の多様化：6ジャンル・スナップ</h2>
   <div class="photo-row three">
     <div class="photo-card">
-      <img src="https://i.scdn.co/image/ab6761610000e5eb49670e56bfa7556b4a255286" alt="Killswitch Engage（メタルコア）" loading="lazy" />
+      <img src="https://placehold.co/400x250" alt="Killswitch Engage（メタルコア）" loading="lazy" />
       <div class="photo-caption">
         <strong>メタルコア（Killswitch Engage）：</strong>
         重低音ブレイクダウン＋クリーン/シャウトで新世代を牽引、王道化。
       </div>
     </div>
     <div class="photo-card">
-      <img src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRg0ff_zTOKsdPsvsxOWS6zt5K3evh5n569FFU9-eTU1NHwDrluzYoZ_ip-8ZqSQKXLfVVPlRxCPx3hjZx5xcaAWksUVZxcAdY07l1hKQ" alt="Lamb of God（NWOAHM）" loading="lazy" />
+      <img src="https://placehold.co/400x250" alt="Lamb of God（NWOAHM）" loading="lazy" />
       <div class="photo-caption">
         <strong>NWOAHM（Lamb of God）：</strong>
         鋭利なリフと強靭グルーヴでスラッシュ更新、米新世代の旗手。
       </div>
     </div>
     <div class="photo-card">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFVEseRM1VBbFaflw7ouplmJvmAxBZXCLWvUYkmQzww5ZamWXFdPUe5yTyQoLl7c7Td2xnQjU4s4JQaRzlJuzzvk42Isxx4EWR44xhQg" alt="Within Temptation（ゴシック／シンフォニック）" loading="lazy" />
+      <img src="https://placehold.co/400x250" alt="Within Temptation（ゴシック／シンフォニック）" loading="lazy" />
       <div class="photo-caption">
         <strong>ゴシック/シンフォ（Within Temptation）：</strong>
         女性Voとシンフォ編成で荘厳な叙情を拡張、欧州で主流化。
@@ -634,21 +484,21 @@ body {
 
   <div class="photo-row three">
     <div class="photo-card">
-      <img src="https://img.hmv.co.jp/image/jacket/400/26/7/1/573.jpg" alt="Meshuggah（ジェント）" loading="lazy" />
+      <img src="https://placehold.co/400x250" alt="Meshuggah（ジェント）" loading="lazy" />
       <div class="photo-caption">
         <strong>ジェント（Meshuggah）：</strong>
         多弦低音と変拍子ポリリズムで現代ヘヴィ刷新、Djentの源流。
       </div>
     </div>
     <div class="photo-card">
-      <img src="https://gekirock.com/news/assets_c/2019/09/Korpiklaani-thumb-700xauto-65465.jpg" alt="Korpiklaani（フォークメタル）" loading="lazy" />
+      <img src="https://placehold.co/400x250" alt="Korpiklaani（フォークメタル）" loading="lazy" />
       <div class="photo-caption">
         <strong>フォークメタル（Korpiklaani）：</strong>
         民族楽器と酒宴コーラスで土着の祝祭感を注入、北欧色濃厚。
       </div>
     </div>
     <div class="photo-card">
-      <img src="https://lastfm.freetls.fastly.net/i/u/ar0/685b69d56b03b182052274d91de0f01e.jpg" alt="The Dillinger Escape Plan（マスコア）" loading="lazy" />
+      <img src="https://placehold.co/400x250" alt="The Dillinger Escape Plan（マスコア）" loading="lazy" />
       <div class="photo-caption">
         <strong>マスコア（The Dillinger Escape Plan）：</strong>
         高速変拍子と破滅的展開、知性と混沌が同居する究極形。
@@ -658,510 +508,51 @@ body {
 </div>
 
 
+        <!-- Slide 9: 2000s / ネットとNu-Metal -->
+        <div class="slide content-slide">
+          <div class="side-mid-title">METAL 2000s</div>
+          <h2>再構築とネットワーク</h2>
+          <p>
+            Nu-Metalやネットプラットフォームの台頭で、メタルは拡散と融合を加速。DIYの波が国境を越えたコミュニティを形成した。
+          </p>
+          <div class="photo-row three">
+            <div class="photo-card">
+              <img src="https://picsum.photos/seed/korn/900/560" alt="Korn" loading="lazy" />
+              <div class="photo-caption"><strong>Korn：</strong> ヒップホップ的リズムと低域の再定義で新世代を牽引。</div>
+            </div>
+            <div class="photo-card">
+              <img src="https://picsum.photos/seed/slipknot/900/560" alt="Slipknot" loading="lazy" />
+              <div class="photo-caption"><strong>Slipknot：</strong> アグレッションと仮面美学。共同体意識の劇場化。</div>
+            </div>
+            <div class="photo-card">
+              <img src="https://picsum.photos/seed/youtube/900/560" alt="YouTube era" loading="lazy" />
+              <div class="photo-caption"><strong>ネット時代：</strong> 配信とSNSがインディでも世界発信を可能に。</div>
+            </div>
+          </div>
+        </div>
 
-<!-- Slide: 2000年代 超絶技巧—リズム隊が主役へ -->
-<div class="slide content-slide">
-  <h2>超絶技巧の拡張：リズム隊が主役へ</h2>
-  <p>
-2000年代に超絶技巧はギターの独壇場からドラム／ベースへ拡大。Djentやプログ系の台頭でポリリズムや変拍子が前景化し、
-DAWと動画文化が精密演奏を可視化。「リズムを支える人」から「楽曲を牽引し見せ場を奪う主役」へ、立ち位置が一段押し上がった。
-  </p>
-
-  <div class="photo-row three">
-    <div class="photo-card">
-      <img src="https://i.ytimg.com/vi/-U6ScIBk4qE/maxresdefault.jpg" alt="Flo Mounier (Cryptopsy)" loading="lazy" />
-      <div class="photo-caption">
-        <strong>Flo Mounier（Cryptopsy／Dr）：</strong>
-        極端なブラストと変拍子を高解像度で叩き切るテクデス象徴。ドラマーが曲を“前面で語る”時代を先導した存在。
-      </div>
-    </div>
-
-    <div class="photo-card">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/Alex_Webster_of_Cannibal_Corpse.jpg" loading="lazy" />
-      <div class="photo-caption">
-        <strong>Alex Webster（Cannibal Corpse／Ba）：</strong>
-        高速ピッキングと対位法的ラインで“低音＝主旋律”を体現。Blotted Science等で技巧派ベースの規範を更新した。
-      </div>
-    </div>
-
-    <div class="photo-card">
-      <img src="https://moderndrummer.com/wp-content/uploads/2018/10/10_30_18_On-The-Beat-with-Hannes-Grossmann-of-Alkaloid-_2.jpg" alt="Hannes Grossmann (Obscura/Alkaloid)" loading="lazy" />
-      <div class="photo-caption">
-        <strong>Hannes Grossmann（Obscura／Dr）：</strong>
-        ネクロファジスト〜Obscuraで精密さとグルーヴを両立。変拍子で“歌う”ドラミングが2010年代以降の標準に。
-      </div>
-    </div>
-  </div>
-
-  <!-- 吹き出し風・ネタキャッチ（逐語の名言ではなくキャッチコピー） -->
-
-</div>
-
-<!-- Interlude E: 2010年代の中間タイトル -->
-<div class="slide split-slide">
-  <div class="split-text">
-    <div class="big-title">2010's <br> グローバル化と差別化戦略</div>
-    <p>
-2010年代のメタルはサウンドが成熟期に入り大きな革新は少なかった一方、異色のアプローチで差別化を図る動きが顕著となった。Babymetalの国際的成功や多国籍バンドの台頭、ジャンル横断的な実験が増加。さらにクラウドファンディングを通じた直接支援やライブ配信の普及が新たな推進力となった。
-    </p>
-  </div>
-  <div class="split-image">
-    <img src="https://livedoor.blogimg.jp/metalboy/imgs/1/9/19ae1dcc.jpg"
-         alt="2010年代の国際フェス風景（Download Festival 2017）" loading="lazy" />
-  </div>
-</div>
-
-<!-- Slide: コンテンツ（小タイトル＋横長写真＋2スプリット） -->
-<div class="slide">
-  <!-- スライド上部の小タイトル -->
-  <div class="slide-header">
-    <h2>2010年代の国際化と差別化</h2>
-  </div>
-
-  <!-- 横長写真（中央トリミング） -->
-  <div class="header-image" style="margin: 15px 0; overflow: hidden;">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Amon_Amarth_IMG_20190629_211342.jpg/500px-Amon_Amarth_IMG_20190629_211342.jpg"
-         alt="Download Festival 2017の様子" loading="lazy"
-         style="width: 100%; height: 35vh; object-fit: cover; object-position: center;" />
-  </div>
-
-  <!-- 下部2スプリット -->
-  <div class="split-slide">
-    <!-- 左側テキスト -->
-    <div class="split-text">
-      <h2>サウンドの飽和</h2>
-      <p>
-        2010年代のメタルは既存ジャンルが出揃い、音楽的には大きな革新が少なく「やり尽くした」感が漂った。多くの作品は似通い、シーン全体は成熟と停滞を同時に抱える時代となった。
-      </p>
-    </div>
-
-    <!-- 右側テキスト -->
-    <div class="split-text">
-      <h2>国際色の拡大</h2>
-      <p>
-        一方で国際的な広がりは加速し、アジアや南米のバンドが欧米フェスに登場。多国籍メンバーによる新しいスタイルも現れ、地域を越えた活動が活発化。国際色がシーンの新たな活力を生んだ。
-      </p>
-    </div>
-  </div>
-</div>
-
-
-<!-- Slide: 2010年代を象徴する新世代バンド -->
-<div class="slide content-slide">
-  <h2>2010年代を象徴する新世代バンド</h2>
-  <p>
-2010年代のメタルはサウンド面で飽和感が漂う一方、国際色の広がりと異色のアプローチで差別化を果たしたバンドが登場した。日本のBabymetalはアイドル性とメタルを融合して世界的成功を収め、ニュージーランドのAlien Weaponryはマオリ文化を前面に押し出して注目を集めた。さらにインドのBloodywoodは民族楽器と社会的メッセージを武器に、ネット発信から国際舞台へと飛躍した。
-  </p>
-  <div class="photo-row three">
-    <div class="photo-card">
-      <img src="https://i.guim.co.uk/img/static/sys-images/Guardian/Pix/pictures/2014/3/16/1394975800825/Babymetal-010.jpg?width=465&dpr=1&s=none&crop=none" alt="Babymetal" loading="lazy" />
-      <div class="photo-caption"><strong>Babymetal：</strong> アイドル的な要素とメタルを融合し、2010年代を代表する異色バンド。欧米フェスで大成功を収め、裏では超一流の神バンドが演奏を支え、演出と実力の両面で国際的評価を得た。。</div>
-    </div>
-    <div class="photo-card">
-      <img src="https://i.ytimg.com/vi/5kwIkF6LFDc/hqdefault.jpg" alt="Alien Weaponry" loading="lazy" />
-      <div class="photo-caption"><strong>Alien Weaponry：</strong> 平均年齢10代で登場した新鋭。マオリ語の歌詞をスラッシュメタルに乗せ、先住民族文化を世界に発信。欧州の大型フェスでも高評価を獲得し、独自性で注目を集めた。</div>
-    </div>
-    <div class="photo-card">
-      <img src="https://dynamicmedia.livenationinternational.com/u/d/v/eccb9fe4-99af-4086-887e-f988321c1534.png?format=webp&width=3840&quality=75" alt="Bloodywood" loading="lazy" />
-      <div class="photo-caption"><strong>Bloodywood：</strong> インドの伝統楽器や民俗旋律を導入し、社会問題を歌詞で訴える異色の存在。YouTube発信から国際舞台に進出し、クラウドファンディングを通じてファンとの直接的な繋がりを築いた。</div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Slide: 2010年代 レジェンドの引退と世代交代 -->
-<div class="slide split-slide">
-  <!-- 左側：レジェンドの引退 -->
-  <div class="split-text">
-    <h2>レジェンドの引退・終幕</h2>
-    <p>
-      2010年代は創世記を支えたバンドが次々と幕を下ろした。Black Sabbathは2017年「The End Tour」で活動終了、Slayerは2019年にファイナルツアーを完走し解散。Motörheadは2015年にレミーが逝去し自然解散。ヘヴィメタルの礎を築いた世代がステージを降り、時代の区切りを印象づけた。
-    </p>
-  </div>
-
-  <!-- 右側：世代交代とコラボ -->
-  <div class="split-text">
-    <h2>世代交代とコラボレーション</h2>
-    <p>
-      レジェンドの引退と並行し、新世代との共演が数々生まれた。Babymetalは2016年にJudas Priestのロブ・ハルフォードと共演し象徴的な瞬間を刻む。Iron Maidenは若手バンドを前座に起用、MetallicaはGhostやGojiraをツアーや自主フェスで支援。世代を超えた繋がりが、次の時代への橋渡しとなった。
-    </p>
-  </div>
-</div>
-
-<!-- Slide: ネット発・超絶技巧の新世代 -->
-<div class="slide content-slide">
-  <h2>ネット発・超絶技巧の新世代</h2>
-  <p>
-2010年代以降、YouTubeやSNSを起点に“アマチュア発の超絶技巧”が可視化。ネットで注目を集めた若き才能が国際舞台へ進出し、楽器がなしえる表現の限界を更新していった。
-  </p>
-  <div class="photo-row three">
-    <div class="photo-card">
-      <img src="https://stat.ameba.jp/user_images/20241125/15/sandyclowzz/d3/23/p/o2048120615514133788.png" alt="Tim Henson (Polyphia)" loading="lazy" />
-      <div class="photo-caption"><strong>Tim Henson（Polyphia）：</strong> ヒップホップ／ポップの語法を取り込み、クリーントーン＆タッピング主体の現代的技巧でネット世代を席巻。YouTube由来の拡散で新世代ギターヒーローに。</div>
-    </div>
-    <div class="photo-card">
-      <img src="https://www.sonymusic.co.jp/adm_image/common/artist_image/71007000/71007914/artist_photo/47174.jpg" alt="Li-sa-X" loading="lazy" />
-      <div class="photo-caption"><strong>Li-sa-X：</strong> 少女期からYouTubeの速弾き動画で世界的にバズ。Racer X「Scarified」などの超絶カバーで注目を集め、早熟の天才からプロシーンへと歩を進めた。</div>
-    </div>
-    <div class="photo-card">
-      <img src="https://i.ytimg.com/vi/eS8gwlb7tqk/maxresdefault.jpg" alt="David Diepold" loading="lazy" />
-      <div class="photo-caption"><strong>David Diepold：</strong> テクニカル・デスメタル系ドラマー。YouTubeで変拍子や片足ダブルキック、超速ブラストを披露して話題に。のちにObscuraなど国際的バンドへ加入。</div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Interlude F: 2020年代の中間タイトル -->
-<div class="slide split-slide">
-  <div class="split-text">
-    <div class="big-title">2020's <br> パンデミックとアルゴリズムの時代</div>
-    <p>
-2020年代はコロナ禍でライブ活動が停滞する一方、配信とSNSが主戦場に。YouTubeやTikTokで技巧派や新世代バンドが一気に拡散し、ベッドルーム制作でもプロ水準が可能に。メタルはハイパーポップやヒップホップとも交差し、地域多極化がさらに進展した。
-    </p>
-  </div>
-  <div class="split-image">
-    <img src="https://rockinon.com/images/entry/width:750/192860/3"
-         alt="2020年代：パンデミックと配信文化" loading="lazy" />
-  </div>
-</div>
-
-<!-- Slide: 2020年代を象徴するSNS・配信の担い手 -->
-<div class="slide content-slide">
-  <h2>2020年代を象徴するSNS・配信の担い手</h2>
-  <p>
-コロナ禍でライブ活動が制限された2020年代、メタルシーンでは<strong>SNSや配信</strong>を武器に存在感を保ったアーティストが浮上した。配信文化を取り込むことで、彼らはファンとの繋がりを失わず、むしろ国際的に支持を広げていった。
-  </p>
-  <div class="photo-row three">
-    <div class="photo-card">
-      <img src="https://i.ytimg.com/vi/yMoOqlhC-l4/mqdefault.jpg" alt="Trivium" loading="lazy" />
-      <div class="photo-caption"><strong>Trivium：</strong> フロントマンMatt HeafyがTwitchで毎日ギターや歌を配信する。パンデミックでもファンとの交流を継続し、逆に人気を拡大した。</div>
-    </div>
-    <div class="photo-card">
-      <img src="https://knotfest.com/cdn/shop/articles/behemoth-opvs-contra-cvltvram-live-atop-the-palace-of-culture.webp?v=1755001734&width=750" alt="Behemoth" loading="lazy" />
-      <div class="photo-caption"><strong>Behemoth：</strong> ポーランドから大規模配信「Opvs Contra Cvltvram」を実施。無観客でも圧倒的な演出で“映像作品としてのメタル”を提示。</div>
-    </div>
-    <div class="photo-card">
-      <img src="https://i.pinimg.com/736x/c1/c5/d4/c1c5d4a5ccfbb0726278ad14d1cf8870.jpg" alt="Jinjer" loading="lazy" />
-      <div class="photo-caption"><strong>Jinjer：</strong> ツアー中断期に公式YouTubeでライブ映像やプレイスルー動画を発信。SNSでの積極交流により国際的支持を維持し続けた。タチアナ・シュマイリュクによるグロウルとクリーンボーカルを使い分けるスタイルが特徴。</div>
-    </div>
-  </div>
-</div>
-
-<!-- Slide: ネットや短尺動画で注目された新世代アーティスト -->
-<div class="slide content-slide">
-  <h2>ネットや短尺動画で注目された新世代アーティスト</h2>
-  <p>
-2020年代、TikTokやYouTubeといった短尺動画プラットフォームから、多様なスタイルを持つアーティストが台頭。メタルはハイパーポップや民族楽器とも交差し、ネット発信から一気に国際的注目を浴びる新しい動きが生まれた。
-  </p>
-  <div class="photo-row three">
-    <div class="photo-card">
-      <img src="https://cdn-images.dzcdn.net/images/artist/160ece03b8cb1fa5cf877387d180cf21/1900x1900-000000-80-0-0.jpg" alt="Kim Dracula" loading="lazy" />
-      <div class="photo-caption"><strong>Kim Dracula：</strong> オーストラリア出身。2020年にTikTokへ投稿したレディー・ガガ「Paparazzi」のメタルカバーがバズり、YouTubeやSpotifyでも急拡散。ネット発ブレイクの成功例。</div>
-    </div>
-    <div class="photo-card">
-      <img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3600620/7849ece1f707d2b1297ed123291608522b27d904/capsule_616x353.jpg?t=1748920469" alt="Banshee" loading="lazy" />
-      <div class="photo-caption"><strong>Banshee：</strong> アメリカの「フェアリー・メタル」アーティスト。ハイパーポップやトラップ、ブラックメタルを融合し、ベッドルーム制作ながら高品質な作品をSNSで配信。</div>
-    </div>
-    <div class="photo-card">
-      <img src="https://piperally.com/cdn/shop/files/Blank3000x3000copy2.jpg?v=1743971548&width=533" alt="Ally the Piper" loading="lazy" />
-      <div class="photo-caption"><strong>Ally the Piper：</strong> バグパイプを武器にMetallicaやAviciiをカバー。TikTokやYouTubeで数百万再生を獲得し、伝統楽器×メタルの独自スタイルで注目を集めた。</div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Slide: Slayer - Angel of Death -->
-<div class="slide two-rows">
-<!-- 上部ヘッダ -->
-<div class="full-text">
-  <h2 style="text-align:center; font-size:2em; margin-bottom:0.25em;">
-    Slayer – Angel of Death (Reign in Blood, 1986)
-  </h2>
-  <div class="mid-title" style="text-align:center; margin-top:0;">
-    スレイヤーの伝説的アルバム『Reign in Blood』の冒頭曲</vr>
-  </div>
-</div>
-
-<br><br>
-  <!-- 下部 左右スプリット -->
-  <div class="split-bottom">
-    <!-- 左：解説＋歌詞 -->
-    <div class="lyrics">
-      <p>
-第二次世界大戦下、ナチス親衛隊医師ヨーゼフ・メンゲレはアウシュビッツ収容所で双子や障害者を対象に残虐な人体実験を行った。その非人道的な行為は戦後のニュルンベルク裁判でも告発され、人類史における深い傷痕となった。
-「Angel of Death」は、この歴史を直視させるように描写し、加害者の狂気と犠牲者の苦痛をむき出しにする。発表当時は「ナチを賛美している」との批判も受けたが、実際には惨禍を忘れさせない表現として評価され、スラッシュメタル史上の代表作に数えられている。
-      </p>
-      <blockquote style="line-height:1.2; margin:0.5em 0;">
-        <p><em>"Auschwitz, the meaning of pain / The way that I want you to die"</em></p>
-        <p><em>「アウシュビッツ、苦痛の意味 / お前を死に追いやる方法」</em></p>
-        <p><em>"The Holocaust, the end of the race / The source of your power is your disgrace"</em></p>
-        <p><em>「ホロコースト、人類の終焉 / 力の源は汚辱そのもの」</em></p>
-      </blockquote>
-    </div>
-
-    <!-- 右：アルバムジャケット -->
-    <div class="image">
-      <img src="https://i.scdn.co/image/ab67616d0000b273fd833375c806981a61bb82ec"
-           alt="Slayer - Reign in Blood Album Cover" loading="lazy"
-           style="max-height: 320px; width: auto; object-fit: contain; margin: 0 auto; display: block;" />
-      <div class="photo-caption"><strong>Reign in Blood (1986)</strong></div>
-    </div>
-  </div>
-</div>
-
-<!-- Slide: Iron Maiden - The Trooper -->
-<div class="slide two-rows">
-  <!-- 上部ヘッダ -->
-  <div class="full-text">
-    <h2 style="text-align:center; font-size:2em; margin-bottom:0.25em;">
-      Iron Maiden – The Trooper (Piece of Mind, 1983)
-    </h2>
-    <div class="mid-title" style="text-align:center; margin-top:0;">
-      アイアン・メイデン不朽の戦争叙事詩
-    </div>
-  </div>
-
-  <br><br>
-  <!-- 下部 左右スプリット -->
-  <div class="split-bottom">
-    <!-- 左：解説＋歌詞 -->
-    <div class="lyrics">
-      <p>
-19世紀のクリミア戦争で起きた「バラクラヴァの戦い」を題材にした楽曲。無謀な命令によって壊滅した英軍騎兵の姿を、疾走感あふれるリフとドラマチックな展開で描き出す。<br>
-リリース当時からライヴの定番曲として演奏され、ステージ上でユニオンジャックを振るブルース・ディッキンソンの姿はバンドの象徴的な光景となった。メタルにおける戦争叙事詩の代表格である。
-      </p>
-      <blockquote style="line-height:1.2; margin:0.5em 0;">
-        <p><em>"You'll take my life, but I'll take yours too"</em></p>
-        <p><em>「お前は俺の命を奪うだろうが、俺もお前を倒す」</em></p>
-        <p><em>"You'll fire your musket, but I'll run you through"</em></p>
-        <p><em>「お前がマスケット銃を撃つ前に、俺は突き刺してやる」</em></p>
-        <p><em>"And as I lay forgotten and alone / Without a tear I draw my parting groan"</em></p>
-        <p><em>「忘れ去られ、戦場に独り倒れても / 涙はなく、最後のうめきを上げるだけ」</em></p>
-      </blockquote>
-    </div>
-
-    <!-- 右：アルバムジャケット -->
-    <div class="image">
-      <img src="https://m.media-amazon.com/images/I/81tb2SG-KOL._AC_SL1500_.jpg"
-           alt="Iron Maiden - Piece of Mind Album Cover" loading="lazy"
-           style="max-height: 320px; width: auto; object-fit: contain; margin: 0 auto; display: block;" />
-      <div class="photo-caption"><strong>Piece of Mind (1983)</strong></div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Slide: Metallica - One -->
-<div class="slide two-rows">
-  <!-- 上部ヘッダ -->
-  <div class="full-text">
-    <h2 style="text-align:center; font-size:2em; margin-bottom:0.25em;">
-      Metallica – One (…And Justice for All, 1988)
-    </h2>
-    <div class="mid-title" style="text-align:center; margin-top:0;">
-      第一次世界大戦で負傷した兵士を題材にした反戦歌
-    </div>
-  </div>
-
-  <br><br>
-  <!-- 下部 左右スプリット -->
-  <div class="split-bottom">
-    <!-- 左：解説＋歌詞 -->
-    <div class="lyrics">
-      <p>
-第一次世界大戦の塹壕戦で地雷を踏み、手足と視聴覚を失った兵士の苦悩を描いた反戦曲。MVでは映画『ジョニーは戦場へ行った』（1971年、カンヌ審査員特別賞受賞）の映像を引用し、映像とメタルを融合させた衝撃作となった。1989年グラミー賞で新設された「ハードロック／メタル部門」では本命視されながらジェスロ・タルが受賞し物議を醸したが、この騒動が翌年以降「メタル部門」独立の契機となり、ジャンルの社会的認知を決定づけた。
-</p>
-
-      <blockquote style="line-height:1.3; margin:0.5em 0;">
-        <p><em>"I can't remember anything / Can't tell if this is true or dream"</em></p>
-        <p><em>「何も思い出せない / これは現実か夢かすら分からない」</em></p>
-        <p><em>"Fed through the tube that sticks in me / Just like a wartime novelty"</em></p>
-        <p><em>「管を通じて生かされる / 戦争の遺物のように」</em></p>
-        <p><em>"Landmine has taken my sight / Taken my speech / Taken my hearing"</em></p>
-        <p><em>「地雷が奪った / 視力を、言葉を、聴覚を」</em></p>
-      </blockquote>
-    </div>
- <!-- 右：アルバムジャケット -->
-    <div class="image">
-      <img src="https://upload.wikimedia.org/wikipedia/en/b/bd/Metallica_-_...And_Justice_for_All_cover.jpg"
-           alt="Metallica - …And Justice for All Album Cover" loading="lazy"
-           style="max-height: 320px; width: auto; object-fit: contain; margin: 0 auto; display: block;" />
-      <div class="photo-caption"><strong>…And Justice for All (1988)</strong></div>
-    </div>
-  </div>
-</div>
-
-
-
-<!-- Slide: Amon Amarth - Twilight of the Thunder God -->
-<div class="slide two-rows">
-  <!-- 上部ヘッダ -->
-  <div class="full-text">
-    <h2 style="text-align:center; font-size:2em; margin-bottom:0.25em;">
-      Amon Amarth – Twilight of the Thunder God (2008)
-    </h2>
-    <div class="mid-title" style="text-align:center; margin-top:0;">
-      北欧神話ラグナロクを描いたヴァイキング・メタルの代表曲
-    </div>
-  </div>
-
-  <br><br>
-  <!-- 下部 左右スプリット -->
-  <div class="split-bottom">
-    <!-- 左：解説＋歌詞 -->
-    <div class="lyrics">
-      <p>
-『Twilight of the Thunder God』は、北欧神話の最終戦争ラグナロクを題材とし、雷神トールと巨蛇ヨルムンガンドの死闘を歌い上げた名曲。
-2008年発表と同時に世界的に注目を集め、ヴァイキング・メタルというジャンルを確立する決定打となった。
-北欧の神話世界を重厚なリフと咆哮で表現し、後続バンドにも大きな影響を与えた。
-      </p>
-      <blockquote style="line-height:1.2; margin:0.5em 0;">
-        <p><em>"Hammer high, this is a do or die / Brothers fight, side by side"</em></p>
-        <p><em>「高く掲げろハンマー、これは死闘だ / 兄弟よ、肩を並べて戦え」</em></p>
-        <p><em>"Twilight of the thunder god / Ragnarok will end us all"</em></p>
-        <p><em>「雷神の黄昏 / ラグナロクがすべてを終わらせる」</em></p>
-      </blockquote>
-    </div>
-
-    <!-- 右：アルバムジャケット -->
-    <div class="image">
-      <img src="https://m.media-amazon.com/images/I/918UonXPoGL._UF1000,1000_QL80_.jpg"
-           alt="Amon Amarth - Twilight of the Thunder God Album Cover" loading="lazy"
-           style="max-height: 320px; width: auto; object-fit: contain; margin: 0 auto; display: block;" />
-      <div class="photo-caption"><strong>Twilight of the Thunder God (2008)</strong></div>
-    </div>
-  </div>
-</div>
-
-
-
-
-<!-- Slide: Sabaton - The Last Stand -->
-<div class="slide two-rows">
-  <!-- 上部ヘッダ -->
-  <div class="full-text">
-    <h2 style="text-align:center; font-size:2em; margin-bottom:0.25em;">
-      Sabaton – The Last Stand (2016)
-    </h2>
-    <div class="mid-title" style="text-align:center; margin-top:0;">
-      スイス衛兵によるローマ防衛の「最後の抵抗」を描く
-    </div>
-  </div>
-
-  <br><br>
-  <!-- 下部 左右スプリット -->
-  <div class="split-bottom">
-    <!-- 左：解説＋歌詞 -->
-    <div class="lyrics">
-      <p>
-『The Last Stand』は1527年の「ローマ劫掠（サッコ・ディ・ローマ）」を題材にした曲。
-圧倒的な兵力に包囲されたローマを守るため、スイス衛兵は教皇クレメンス7世を逃がし、自らは殿として玉砕した。
-勇敢な犠牲は今も衛兵の伝統として語り継がれ、Sabaton はこの出来事を壮大なコーラスと力強いリズムで再現している。
-      </p>
-      <blockquote style="line-height:1.2; margin:0.5em 0;">
-        <p><em>"In the heart of Holy See / In the home of Christianity"</em></p>
-        <p><em>「聖座の中心で / キリスト教の故郷で」</em></p>
-        <p><em>"The last stand, for the empire's fall / Their devotion fuels the storm"</em></p>
-        <p><em>「最後の抵抗、帝国の崩壊を前に / その献身が嵐を呼ぶ」</em></p>
-      </blockquote>
-    </div>
-
-    <!-- 右：アルバムジャケット -->
-    <div class="image">
-      <img src="https://cdn-ak.f.st-hatena.com/images/fotolife/S/Show_hitorigoto/20200320/20200320194458.jpg"
-           alt="Sabaton - The Last Stand Album Cover" loading="lazy"
-           style="max-height: 320px; width: auto; object-fit: contain; margin: 0 auto; display: block;" />
-      <div class="photo-caption"><strong>The Last Stand (2016)</strong></div>
-    </div>
-  </div>
-</div>
-
-
-
-
-<!-- Slide: Monsters of Rock Moscow 1991 -->
-<div class="slide two-rows">
-  <!-- 上部ヘッダ -->
-  <div class="full-text">
-    <h2 style="text-align:center; font-size:2em; margin-bottom:0.25em;">
-      Monsters of Rock – Moscow (1991)
-    </h2>
-    <div class="mid-title" style="text-align:center; margin-top:0; font-size:1.3rem; margin-bottom:1em;">
-      冷戦崩壊直後にモスクワで開催された史上最大級のメタルフェス
-    </div>
-  </div>
-
-  <!-- 下部 左右スプリット -->
-  <div class="split-bottom">
-    <!-- 左：解説 -->
-    <div class="lyrics">
-     <p>
-  1991年9月28日、モスクワのトゥシーノ飛行場で開催された「Monsters of Rock」は、推定50万〜150万人が集まった史上最大規模のメタルフェス。
-  旧ソ連の市民にとって、自由な西側カルチャーを体感できる歴史的瞬間であり、冷戦終結と民主化を象徴する出来事として語り継がれている。
-</p>
-<p>
-  出演はAC/DC、Metallica、Pantera、The Black Crowes、E.S.T.。
-  特にブラックアルバム直後のMetallicaとPanteraは圧倒的な演奏を披露し、観客の熱狂は抑えきれず軍用ヘリが上空から監視するほどだった。
-</p>
-<p>
-  このフェスは単なる音楽イベントを超え、ソ連の若者たちに「表現の自由」を実感させる象徴となった。
-  西側メタルが鉄のカーテンを突き破った瞬間として、ロック史・世界史の両面から語り継がれている。
-</p>
-    </div>
-
-    <!-- 右：写真エリア -->
-    <div class="image">
-      <img src="https://themusicman.uk/wp-content/uploads/2021/08/metalica.jpg"
-           alt="Monsters of Rock Moscow 1991 - Metallica Live" loading="lazy"
-           style="max-height: 300px; width: auto; object-fit: contain; margin: 0 auto; display: block;" />
-      <div class="photo-caption"><strong>Metallica at Moscow (1991)</strong></div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Slide: Ozzy Osbourne 遺産スライド -->
-<div class="slide two-rows">
-  <!-- 上部ヘッダ -->
-  <div class="full-text">
-    <h2 style="text-align:center; font-size:2em; margin-bottom:0.25em;">
-      Ozzy Osbourne — “Prince of Darkness” の軌跡
-    </h2>
-    <div class="mid-title" style="text-align:center; margin-top:0; font-size:1.3rem; margin-bottom:1em;">
-      ブラック・サバス創設から最後のステージ、そして永遠へ
-    </div>
-  </div>
-
-  <!-- 下部 左右スプリット -->
-  <div class="split-bottom">
-    <!-- 左：沿革まとめ -->
-    <div class="lyrics">
-      <p>
-        オジー・オズボーンは1968年ブラック・サバスを結成し、1970年代にヘヴィメタルを定義した存在。1980年代にはソロデビューし、多くのヒット曲と共に「Prince of Darkness」の地位を確立。1990年代にはOzzfestを始め、新しいメタルの登竜門となる。2002年にはMTVリアリティ番組で文化的アイコンへ。その最後のパフォーマンスは2025年7月5日、地元バーミンガムでのチャリティー公演「Back to the Beginning」で達成された。17日後に逝去、世代を超えて語り継がれる伝説となった。
-      </p>
-      <p style="font-style: italic; margin-top: 0.8em;">
-        “I’m not going to get up there and do a half-hearted Ozzy… I’m not going up there in a ***** wheelchair.”  
-       「中途半端なオジーを見せるつもりはない……クソったれな車椅子に乗ってステージに立つ気なんかないんだ。」 — ファイナルステージでの言葉が象徴的。  
-      </p>
-      <p style="margin-top: 0.8em;">
-        2025年7月22日に76歳で死去。死因は心臓発作（心筋梗塞）とパーキンソン病に伴う合併症が原因と公式に発表された。最期を彼らしい笑いと感動で締めくくったロックの永遠の王者。
-      </p>
-    </div>
-
-    <!-- 右：写真エリア -->
-    <div class="image">
-      <img src="https://www.udiscovermusic.jp/wp-content/uploads/2025/07/RH-2025-07-05-4434.jpg"
-           alt="Ozzy Osbourne final performance" loading="lazy"
-           style="max-height: 300px; width: auto; object-fit: contain; margin: 0 auto; display: block;" />
-      <div class="photo-caption"><strong>Black Sabbath “Back to the Beginning” (2025)</strong></div>
-    </div>
-  </div>
-</div>
-
-
-
-
-
+        <!-- Slide 10: 2010s / 多様化と世界的拡散 -->
+        <div class="slide content-slide">
+          <div class="side-mid-title">METAL 2010s</div>
+          <h2>多様化と世界的拡散</h2>
+          <p>
+            Djent、シンフォニック、フォークなどの融合が進み、アジア勢の台頭も顕著に。フェスとSNSが世界の距離を縮めた。
+          </p>
+          <div class="photo-row three">
+            <div class="photo-card">
+              <img src="https://picsum.photos/seed/djent/900/560" alt="Djent" loading="lazy" />
+              <div class="photo-caption"><strong>Djent：</strong> 精密リズムとモダンな重低域で新機軸。</div>
+            </div>
+            <div class="photo-card">
+              <img src="https://picsum.photos/seed/babymetal14/900/560" alt="BABYMETAL" loading="lazy" />
+              <div class="photo-caption"><strong>BABYMETAL：</strong> ポップ×メタルの越境で国際的支持。</div>
+            </div>
+            <div class="photo-card">
+              <img src="https://picsum.photos/seed/lovebites18/900/560" alt="LOVEBITES" loading="lazy" />
+              <div class="photo-caption"><strong>LOVEBITES：</strong> 正統HMを現代的に再燃させた象徴。</div>
+            </div>
+          </div>
+        </div>
 
       </div>
     </div>
@@ -1174,38 +565,7 @@ DAWと動画文化が精密演奏を可視化。「リズムを支える人」�
     <div class="slide-indicators" id="indicators"></div>
   </div>
 
-  <script>
-
-// --- Viewport height lock (mobile) ---
-(function() {
-  function setVh() {
-    const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
-    document.documentElement.style.setProperty('--vh', vh + 'px');
-  }
-  let rafId = null;
-  function onResize() {
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(setVh);
-  }
-  setVh();
-  window.addEventListener('resize', onResize);
-  window.addEventListener('orientationchange', onResize);
-})();
-
-
-function scrollMainToTop() {
-  const mc = document.querySelector('.main-content');
-  if (mc) {
-    try {
-      // Instant jump to top to avoid visible delay on slide switch
-      mc.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-    } catch(e) {
-      mc.scrollTop = 0;
-      mc.scrollLeft = 0;
-    }
-  }
-}
-
+<script>
 let currentSlide = 0;
 const slides = document.querySelectorAll('.slide');
 const totalSlides = slides.length;
@@ -1214,7 +574,15 @@ const currentSlideSpan = document.getElementById('current-slide');
 const totalSlidesSpan = document.getElementById('total-slides');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
-const indicatorsContainer = document.getElementById('indicators');
+\1
+
+// Mark images as swipe-enabled zones only
+function markSwipeZones() {
+  document.querySelectorAll('.split-image img, .timeline-hero-image img, .photo-card img').forEach(img => {
+    img.classList.add('swipe-zone');
+  });
+}
+
 // Initialize
 totalSlidesSpan.textContent = totalSlides;
 // Create indicators
@@ -1226,22 +594,17 @@ for (let i = 0; i < totalSlides; i++) {
   indicatorsContainer.appendChild(indicator);
 }
 function updateSlide() {
-  slidesContainer.style.transform = `translate3d(${-currentSlide * slidesContainer.clientWidth}px,0,0)`;
+  slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
   currentSlideSpan.textContent = currentSlide + 1;
   prevBtn.disabled = currentSlide === 0;
   nextBtn.disabled = currentSlide === totalSlides - 1;
   const indicators = document.querySelectorAll('.indicator');
   indicators.forEach((el, idx) => el.classList.toggle('active', idx === currentSlide));
 }
-function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide();
-// ensure top after init
-scrollMainToTop(); } }
-function previousSlide() { if (currentSlide > 0) { currentSlide--; updateSlide();
-// ensure top after init
-scrollMainToTop(); } }
-function goToSlide(index) { if (index >= 0 && index < totalSlides) { currentSlide = index; updateSlide();
-// ensure top after init
-scrollMainToTop(); } }
+function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; markSwipeZones();
+updateSlide(); } }
+function previousSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } }
+function goToSlide(index) { if (index >= 0 && index < totalSlides) { currentSlide = index; updateSlide(); } }
 // Keyboard
 document.addEventListener('keydown', (e) => {
   switch(e.key) {
@@ -1251,90 +614,17 @@ document.addEventListener('keydown', (e) => {
     case 'End': e.preventDefault(); goToSlide(totalSlides - 1); break;
   }
 });
+// Touch
+let startX = 0, startY = 0;
+document.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; });
+document.addEventListener('touchend', (e) => {
+  if (!startX && !startY) return;
+  const endX = e.changedTouches[0].clientX; const endY = e.changedTouches[0].clientY;
+  const diffX = startX - endX; const diffY = startY - endY;
+  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) { if (diffX > 0) nextSlide(); else previousSlide(); }
+  startX = 0; startY = 0;
+});
 updateSlide();
-// ensure top after init
-scrollMainToTop();
-
-// --- Robust swipe with threshold & velocity (fixed 2025-08-16) ---
-(function() {
-  const container = document.getElementById('slides-container');
-  if (!container) return;
-
-  let startX = 0, startY = 0, isDragging = false;
-  let currentX = 0, currentY = 0;
-  let startTime = 0;
-  let baseOffset = 0; // px
-
-  function getWidth() { return container.clientWidth; }
-  function setTranslate(px) { container.style.transform = `translate3d(${px}px, 0, 0)`; }
-
-  function onTouchStart(e) {
-    const t = e.touches[0];
-    startX = currentX = t.clientX;
-    startY = currentY = t.clientY;
-    startTime = performance.now();
-    baseOffset = -currentSlide * getWidth();
-    isDragging = false;
-    container.classList.add('dragging');
-  }
-
-  function onTouchMove(e) {
-    if (!startTime) return;
-    const t = e.touches[0];
-    currentX = t.clientX;
-    currentY = t.clientY;
-    const dx = currentX - startX;
-    const dy = currentY - startY;
-
-    if (!isDragging) {
-      if (Math.abs(dx) > 40 && Math.abs(dx) > 1.5 * Math.abs(dy)) {
-        isDragging = true;
-      } else {
-        return; // allow vertical scrolling
-      }
-    }
-    e.preventDefault();
-    setTranslate(baseOffset + dx);
-  }
-
-  function onTouchEnd() {
-    if (!startTime) return;
-
-    const dt = Math.max(1, performance.now() - startTime);
-    const dx = currentX - startX;
-    const vx = dx / dt; // px/ms
-
-    const width = getWidth();
-    const DIST_THRESHOLD = Math.min(0.25 * width, 200); // 25% or 200px
-    const VELO_THRESHOLD = 0.6; // ~600 px/s
-
-    if (Math.abs(dx) > DIST_THRESHOLD || Math.abs(vx) > VELO_THRESHOLD) {
-      if (dx < 0 && currentSlide < totalSlides - 1) currentSlide++;
-      else if (dx > 0 && currentSlide > 0) currentSlide--;
-    }
-
-    updateSlide();
-    scrollMainToTop();
-
-    startX = startY = currentX = currentY = 0;
-    startTime = 0;
-    isDragging = false;
-    container.classList.remove('dragging');
-  }
-
-  container.addEventListener('touchstart', onTouchStart, { passive: true });
-  container.addEventListener('touchmove', onTouchMove, { passive: false });
-  container.addEventListener('touchend', onTouchEnd, { passive: true });
-
-  // Re-snap on resize (because we use px translate)
-  window.addEventListener('resize', () => {
-    const original = container.style.transition;
-    container.style.transition = 'none';
-    updateSlide();
-    requestAnimationFrame(() => { container.style.transition = original; });
-  });
-})();
-
 </script>
 </body>
 </html>
