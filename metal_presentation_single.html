@@ -287,6 +287,20 @@ body {
   .header h1 {
     font-size: 1.4rem;
   }
+  /* 二段レイアウト画像が横にはみ出ないように */
+.two-rows .split-bottom .image img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* 長いキャプションや単語での横スクロール対策（任意） */
+.slide p,
+.photo-caption,
+blockquote {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
 
   /* --- Switch to Vertical Scroll Layout --- */
   .main-content {
@@ -344,6 +358,11 @@ body {
   }
   .photo-card img { height: 200px; }
   .interlude-slide-stacked img { max-height: 40vh; }
+}
+  /* 画像が親幅を超えないように */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
 }
 
 </style>
