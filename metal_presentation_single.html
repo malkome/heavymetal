@@ -3,15 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
-```user-scalable=yes`にすることで、ピンチ操作での拡大縮小が可能になります。また、ダブルタップズームは、この`viewport`設定ではブラウザのデフォルト挙動に依存しますが、後述のJavaScriptで制御します。
 
-### JavaScriptの修正
-
-次に、ダブルタップズームを無効化し、スワイプ操作に影響を与えないようにするために、JavaScriptにイベントリスナーを追加します。
-
-`</body>`タグの直前にある既存の`<script>`タグ内に、以下のコードを追加してください。
-
-```javascript
 document.addEventListener('touchstart', function(event) {
     if (event.touches.length > 1) {
         event.preventDefault();
