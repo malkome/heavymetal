@@ -40,7 +40,14 @@ body {
 .slide-counter { color: var(--accent2); font-size: 1.1rem; font-weight: 700; }
 
 /* Slides */
-.main-content { flex: 1; position: relative; overflow: hidden; }
+.main-content { flex: 1; position: relative; overflow: hidden; }.main-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex; /* 追加 */
+  align-items: center; /* 追加 */
+  justify-content: center; /* 追加 */
+}
 .slides-container { 
   display: flex; 
   width: 100%; 
