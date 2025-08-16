@@ -78,19 +78,18 @@ updateSlide();
 // ensure top after init
 scrollMainToTop();
 
-// --- Robust swipe with threshold & velocity ---
+// --- Robust swipe with threshold & velocity (fixed 2025-08-16) ---
 (function() {
   const container = document.getElementById('slides-container');
+  if (!container) return;
+
   let startX = 0, startY = 0, isDragging = false;
   let currentX = 0, currentY = 0;
   let startTime = 0;
   let baseOffset = 0; // px
-  let animReq = 0;
 
   function getWidth() { return container.clientWidth; }
-  function setTranslate(px) {
-    container.style.transform = `translate3d(${px}px, 0, 0)`;
-  }
+  function setTranslate(px) { container.style.transform = `translate3d(${px}px, 0, 0)`; }
 
   function onTouchStart(e) {
     const t = e.touches[0];
@@ -110,36 +109,36 @@ scrollMainToTop();
     const dx = currentX - startX;
     const dy = currentY - startY;
 
-    // Activate horizontal drag only when horizontal intent is clear
-    if (!isDragging) { if (Math.abs(dx) > 40 && Math.abs(dx) > 1.5 * Math.abs(dy)) {
+    if (!isDragging) {
+      if (Math.abs(dx) > 40 && Math.abs(dx) > 1.5 * Math.abs(dy)) {
         isDragging = true;
       } else {
-        return; // let browser handle vertical scroll
+        return; // allow vertical scrolling
       }
     }
-
-    // Prevent vertical scroll while dragging horizontally
     e.preventDefault();
     setTranslate(baseOffset + dx);
   }
 
-  function onTouchEnd(e) {
+  function onTouchEnd() {
+    if (!startTime) return;
+
     const dt = Math.max(1, performance.now() - startTime);
     const dx = currentX - startX;
-    const vx = dx / dt; // px per ms
+    const vx = dx / dt; // px/ms
 
-    // thresholds
     const width = getWidth();
-    const DIST_THRESHOLD = Math.min(0.7 * width, 500); // 70% or 500px
-    const VELO_THRESHOLD = 1.2; // px per ms (~1200 px/s)ng) {
-      if (Math.abs(dx) > DIST_THRESHOLD || Math.abs(vx) > VELO_THRESHOLD) {
-        if (dx < 0 && currentSlide < totalSlides - 1) { currentSlide++; moved = true; }
-        if (dx > 0 && currentSlide > 0) { currentSlide--; moved = true; }
-      }
+    const DIST_THRESHOLD = Math.min(0.25 * width, 200); // 25% or 200px
+    const VELO_THRESHOLD = 0.6; // ~600 px/s
+
+    if (Math.abs(dx) > DIST_THRESHOLD || Math.abs(vx) > VELO_THRESHOLD) {
+      if (dx < 0 && currentSlide < totalSlides - 1) currentSlide++;
+      else if (dx > 0 && currentSlide > 0) currentSlide--;
     }
-    // Snap to the final slide position
+
     updateSlide();
-    // Cleanup
+    scrollMainToTop();
+
     startX = startY = currentX = currentY = 0;
     startTime = 0;
     isDragging = false;
@@ -149,4 +148,12 @@ scrollMainToTop();
   container.addEventListener('touchstart', onTouchStart, { passive: true });
   container.addEventListener('touchmove', onTouchMove, { passive: false });
   container.addEventListener('touchend', onTouchEnd, { passive: true });
+
+  // Re-snap on resize (because we use px translate)
+  window.addEventListener('resize', () => {
+    const original = container.style.transition;
+    container.style.transition = 'none';
+    updateSlide();
+    requestAnimationFrame(() => { container.style.transition = original; });
+  });
 })();

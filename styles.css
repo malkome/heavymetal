@@ -101,7 +101,7 @@ body {
 
 
 /* --- Custom modifications (2025-08-16) --- */
-.slide-indicators { display: none !important; }
+/* .slide-indicators { display: none !important; }  -- disabled by hotfix */
 .nav-btn {
   padding: 6px 12px !important;
   font-size: 0.85rem !important;
@@ -115,3 +115,81 @@ body {
 .main-content { height: calc(var(--vh, 1vh) * 100 - 64px); } /* header height approx; keeps content stable */
 .slides-container { will-change: transform; touch-action: pan-y; }
 .slides-container.dragging { transition: none !important; cursor: grabbing; }
+
+
+/* hotfix (ensure indicators visible) */
+.slide-indicators { display: flex !important; }
+
+
+/* =============================
+   Slides: two-rows / split-bottom overrides
+   (append this block at the end)
+   ============================= */
+
+/* 上部ヘッダを中央にドーン */
+.two-rows .full-text h2{
+  text-align: center;
+  font-size: 2em;
+  margin: 0 0 12px 0;
+}
+
+/* 下部を左右2分割（デスクトップ） */
+.two-rows .split-bottom{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* 歌詞ブロック：行間ギリギリ＆余白最小化 */
+.two-rows .split-bottom .lyrics blockquote{
+  line-height: 1;      /* ←ご指定どおり 1 に */
+  margin: 0;           /* 上下の余白をカット */
+  padding: 0;
+}
+.two-rows .split-bottom .lyrics blockquote p{
+  margin: 0;           /* <p>の既定余白も削除 */
+}
+.two-rows .split-bottom .lyrics em{
+  font-style: italic;
+}
+
+/* 右側の画像：縦を絞って中央揃え、比率は維持 */
+.two-rows .split-bottom .image img{
+  max-height: 320px;   /* 縦の上限（280〜340で調整可） */
+  width: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+.two-rows .split-bottom .image .photo-caption{
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* 小さめ画面では縦並びにフォールバック */
+@media (max-width: 900px){
+  .two-rows .split-bottom{
+    grid-template-columns: 1fr;
+  }
+  .two-rows .split-bottom .image img{
+    max-height: 260px;
+  }
+}
+.two-rows .full-text .mid-title {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1.3rem;   /* 中見出しっぽく強調 */
+  font-weight: 600;
+  color: var(--accent2);
+  opacity: 0.95;
+}
+
+.two-rows .full-text .mid-title {
+  margin-top: 0;
+  margin-bottom: 20px;  /* ← 下に余白を広めに追加 */
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--accent2);
+  opacity: 0.95;
+}
