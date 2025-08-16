@@ -107,3 +107,11 @@ body {
   font-size: 0.85rem !important;
   border-radius: 16px !important;
 }
+
+
+/* --- Mobile stability & swipe improvements (2025-08-16) --- */
+:root { --vh: 1vh; }
+.presentation { height: calc(var(--vh, 1vh) * 100); }
+.main-content { height: calc(var(--vh, 1vh) * 100 - 64px); } /* header height approx; keeps content stable */
+.slides-container { will-change: transform; touch-action: pan-y; }
+.slides-container.dragging { transition: none !important; cursor: grabbing; }
