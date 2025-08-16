@@ -129,9 +129,18 @@ body { overflow: hidden; }
 
 /* --- Mobile safe area & viewport fixes --- */
 body {
-  padding-top: env(safe-area-inset-top);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(255,136,0,0.08), transparent 60%),
+    radial-gradient(1200px 600px at 80% 110%, rgba(255,170,51,0.06), transparent 60%),
+    var(--bg);
+  color: var(--paper);
+  font-family: "Helvetica Neue", Arial, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* 修正: デスクトップでのみoverflow: hiddenを適用 */
+  overflow-x: hidden;
+  /* 追加：コンテンツを中央に寄せる */
+  display: flex;
+  justify-content: center;
 }
 .header { position: sticky; top: 0; }
 @supports (height: 100svh) {
