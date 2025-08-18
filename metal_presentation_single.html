@@ -1492,64 +1492,39 @@ if (isMobile) {
   let isAnimating = false;
   
   const updateMobilePageCounter = () => {
-    if (isAnimating) return;
+  if (isAnimating) return;
+  
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const windowHeight = window.innerHeight;
+  const viewportCenter = scrollTop + windowHeight / 2;
+  
+  let newSlideNumber = 1;
+  
+  slides.forEach((slide, index) => {
+    const slideTop = slide.offsetTop;
+    const slideBottom = slideTop + slide.offsetHeight;
     
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight;
-    
-    let newSlideNumber = 1;
-    
-    // Calculate which slide is most visible
-    slides.forEach((slide, index) => {
-      const slideTop = slide.offsetTop;
-      const slideBottom = slideTop + slide.offsetHeight;
-      
-      // Check if slide is at least 50% visible
-      const visibleTop = Math.max(scrollTop, slideTop);
-      const visibleBottom = Math.min(scrollTop + windowHeight, slideBottom);
-      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-      const slideHeight = slide.offsetHeight;
-      
-      if (visibleHeight > slideHeight * 0.5) {
-        newSlideNumber = index + 1;
-      }
-    });
-    
-    // Update counter with animation if slide changed
-    if (newSlideNumber !== currentVisibleSlide) {
-      currentVisibleSlide = newSlideNumber;
-      isAnimating = true;
-      
-      // Add animation class
-      currentSlideSpan.classList.add('updating');
-      
-      // Update number after brief delay
-      setTimeout(() => {
-        currentSlideSpan.textContent = currentVisibleSlide;
-      }, 150);
-      
-      // Remove animation class
-      setTimeout(() => {
-        currentSlideSpan.classList.remove('updating');
-        isAnimating = false;
-      }, 300);
+    if (viewportCenter >= slideTop && viewportCenter < slideBottom) {
+      newSlideNumber = index + 1;
     }
-  };
+  });
   
-  // Throttled scroll handler
-  let scrollTimeout;
-  const handleScroll = () => {
-    if (scrollTimeout) {
-      clearTimeout(scrollTimeout);
-    }
-    scrollTimeout = setTimeout(updateMobilePageCounter, 50);
-  };
-  
-  window.addEventListener('scroll', handleScroll);
-  
-  // Initial update
-  updateMobilePageCounter();
-}
+  if (newSlideNumber !== currentVisibleSlide) {
+    currentVisibleSlide = newSlideNumber;
+    isAnimating = true;
+    
+    currentSlideSpan.classList.add('updating');
+    
+    setTimeout(() => {
+      currentSlideSpan.textContent = currentVisibleSlide;
+    }, 150);
+    
+    setTimeout(() => {
+      currentSlideSpan.classList.remove('updating');
+      isAnimating = false;
+    }, 300);
+  }
+};
 });
 
 
