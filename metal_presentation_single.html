@@ -1491,20 +1491,19 @@ if (isMobile) {
   let currentVisibleSlide = 1;
   let isAnimating = false;
   
-  const updateMobilePageCounter = () => {
+ const updateMobilePageCounter = () => {
   if (isAnimating) return;
   
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const windowHeight = window.innerHeight;
-  const viewportCenter = scrollTop + windowHeight / 2;
+  const triggerPoint = scrollTop + windowHeight * 0.3; // 画面上から30%の位置
   
   let newSlideNumber = 1;
   
   slides.forEach((slide, index) => {
     const slideTop = slide.offsetTop;
-    const slideBottom = slideTop + slide.offsetHeight;
     
-    if (viewportCenter >= slideTop && viewportCenter < slideBottom) {
+    if (triggerPoint >= slideTop) {
       newSlideNumber = index + 1;
     }
   });
