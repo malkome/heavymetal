@@ -1479,54 +1479,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateSlide();
   }
+
   // --- Mobile Scroll-based Page Counter Logic ---
-if (isMobile) {
-  const slides = document.querySelectorAll('.slide');
-  const totalSlides = slides.length;
-  const currentSlideSpan = document.getElementById('current-slide');
-  const totalSlidesSpan = document.getElementById('total-slides');
-  
-  totalSlidesSpan.textContent = totalSlides;
-  
-  let currentVisibleSlide = 1;
-  let isAnimating = false;
-  
- const updateMobilePageCounter = () => {
-  if (isAnimating) return;
-  
-  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  const windowHeight = window.innerHeight;
-  const triggerPoint = scrollTop + windowHeight * 0.3; // 画面上から30%の位置
-  
-  let newSlideNumber = 1;
-  
-  slides.forEach((slide, index) => {
-    const slideTop = slide.offsetTop;
+  if (isMobile) {
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const currentSlideSpan = document.getElementById('current-slide');
+    const totalSlidesSpan = document.getElementById('total-slides');
     
-    if (triggerPoint >= slideTop) {
-      newSlideNumber = index + 1;
-    }
-  });
-  
-  if (newSlideNumber !== currentVisibleSlide) {
-    currentVisibleSlide = newSlideNumber;
-    isAnimating = true;
+    totalSlidesSpan.textContent = totalSlides;
     
-    currentSlideSpan.classList.add('updating');
+    let currentVisibleSlide = 1;
+    let isAnimating = false;
     
-    setTimeout(() => {
-      currentSlideSpan.textContent = currentVisibleSlide;
-    }, 150);
+    const updateMobilePageCounter = () => {
+      if (isAnimating) return;
+      
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const triggerPoint = scrollTop + windowHeight * 0.3;
+      
+      let newSlideNumber = 1;
+      
+      slides.forEach((slide, index) => {
+        const slideTop = slide.offsetTop;
+        
+        if (triggerPoint >= slideTop) {
+          newSlideNumber = index + 1;
+        }
+      });
+      
+      if (newSlideNumber !== currentVisibleSlide) {
+        currentVisibleSlide = newSlideNumber;
+        isAnimating = true;
+        
+        currentSlideSpan.classList.add('updating');
+        
+        setTimeout(() => {
+          currentSlideSpan.textContent = currentVisibleSlide;
+        }, 150);
+        
+        setTimeout(() => {
+          currentSlideSpan.classList.remove('updating');
+          isAnimating = false;
+        }, 300);
+      }
+    };
     
-    setTimeout(() => {
-      currentSlideSpan.classList.remove('updating');
-      isAnimating = false;
-    }, 300);
+    let scrollTimeout;
+    const handleScroll = () => {
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      scrollTimeout = setTimeout(updateMobilePageCounter, 50);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    updateMobilePageCounter();
   }
-};
 });
-
-
 </script>
 </body>
 </html>
