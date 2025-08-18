@@ -331,11 +331,37 @@ blockquote {
     justify-content: center;
   }
 
-  /* --- Hide Desktop Navigation --- */
-  .navigation,
-  .slide-counter {
-    display: none;
-  }
+/* --- Hide Desktop Navigation --- */
+.navigation {
+  display: none;
+}
+
+/* --- Mobile Page Counter --- */
+.slide-counter {
+  display: flex !important;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent2);
+  background: rgba(255, 136, 0, 0.1);
+  padding: 6px 12px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 170, 51, 0.3);
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.mobile-current-slide {
+  color: var(--accent);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.mobile-current-slide.updating {
+  transform: scale(1.2);
+  color: #fff;
+}
 
   /* --- Adjust Content for Mobile --- */
   .slide-content-wrapper {
@@ -414,7 +440,7 @@ img, video, iframe {
     <!-- Header -->
     <div class="header">
       <h1>ヘヴィメタルの歴史</h1>
-      <div class="slide-counter"><span id="current-slide">1</span> / <span id="total-slides">-</span></div>
+      <div class="slide-counter"><span id="current-slide" class="mobile-current-slide">1</span>/ <span id="total-slides">-</span></div>
     </div>
 
     <!-- Main Content -->
@@ -1453,6 +1479,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateSlide();
   }
+  // --- Mobile Scroll-based Page Counter Logic ---
+if (isMobile) {
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  const currentSlideSpan = document.getElementById('current-slide');
+  const totalSlidesSpan = document.getElementById('total-slides');
+  
+  totalSlidesSpan.textContent = totalSlides;
+  
+  let currentVisibleSlide = 1;
+  let isAnimating = false;
+  
+  const updateMobilePageCounter = () => {
+    if (isAnimating) return;
+    
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    
+    let newSlideNumber = 1;
+    
+    // Calculate which slide is most visible
+    slides.forEach((slide, index) => {
+      const slideTop = slide.offsetTop;
+      const slideBottom = slideTop + slide.offsetHeight;
+      
+      // Check if slide is at least 50% visible
+      const visibleTop = Math.max(scrollTop, slideTop);
+      const visibleBottom = Math.min(scrollTop + windowHeight, slideBottom);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      const slideHeight = slide.offsetHeight;
+      
+      if (visibleHeight > slideHeight * 0.5) {
+        newSlideNumber = index + 1;
+      }
+    });
+    
+    // Update counter with animation if slide changed
+    if (newSlideNumber !== currentVisibleSlide) {
+      currentVisibleSlide = newSlideNumber;
+      isAnimating = true;
+      
+      // Add animation class
+      currentSlideSpan.classList.add('updating');
+      
+      // Update number after brief delay
+      setTimeout(() => {
+        currentSlideSpan.textContent = currentVisibleSlide;
+      }, 150);
+      
+      // Remove animation class
+      setTimeout(() => {
+        currentSlideSpan.classList.remove('updating');
+        isAnimating = false;
+      }, 300);
+    }
+  };
+  
+  // Throttled scroll handler
+  let scrollTimeout;
+  const handleScroll = () => {
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+    }
+    scrollTimeout = setTimeout(updateMobilePageCounter, 50);
+  };
+  
+  window.addEventListener('scroll', handleScroll);
+  
+  // Initial update
+  updateMobilePageCounter();
+}
 });
 
 
