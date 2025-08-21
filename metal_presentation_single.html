@@ -437,6 +437,21 @@ img, video, iframe {
   0% { filter: hue-rotate(0deg); }
   100% { filter: hue-rotate(360deg); }
 }
+  /* === ヘッダーに挿入した .big-title を 1行・小さめに整える === */
+.header .big-title {
+  /* 元の .big-title より優先させるため指定を上書き */
+  font-size: 1.05rem !important;
+  font-weight: 800;
+  color: var(--accent2) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-bottom: none !important;
+  text-shadow: none !important;
+  display: inline !important;   /* 1行に収める */
+}
+.header .big-title br { display: none !important; } /* 改行を潰して1行表示 */
+
 </style>
 
 </head>
@@ -1493,36 +1508,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const nextBtn = document.getElementById('next-btn');
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
-  const totalSlides = slides.length;
-  totalSlidesSpan.textContent = totalSlides;
+  if (!slides.length || !eraLabelEl) return;
 
-  // === 各スライドの big-title（HTMLそのまま）を収集。無ければ null ===
+  const totalSlides = slides.length;
+  if (totalSlidesSpan) totalSlidesSpan.textContent = totalSlides;
+
+  // === 各スライドの <div class="big-title"> を “まるごと”(outerHTML) 取る。無ければ null ===
   const eraHTML = Array.from(slides).map(slide => {
     const bt = slide.querySelector('.big-title');
-    return bt ? bt.innerHTML.trim() : null;
+    return bt ? bt.outerHTML : null;  // ← まるごと入れるので見た目を保てる
   });
 
-  // === ヘッダー更新（big-title が無ければ“直前の表示を維持”） ===
-  let lastEraHTML = '—';
+  // 初期値：最初に見つかった big-title を使う（先頭スライドに無いケース対策）
+  const firstEraHTML = eraHTML.find(Boolean) || '—';
+  let lastEraHTML = firstEraHTML;
+  eraLabelEl.innerHTML = lastEraHTML;
+
+  // === ヘッダー更新（big-title が無ければ直前の表示維持） ===
   const setEraLabelByIndex = (idx) => {
     const html = eraHTML[idx];
-    if (html && html.length > 0) {
-      eraLabelEl.innerHTML = html;  // HTMLをそのまま反映（改行や装飾対応）
+    if (html) {
+      eraLabelEl.innerHTML = html;
       lastEraHTML = html;
     } else {
       eraLabelEl.innerHTML = lastEraHTML;
     }
   };
 
-  // ====== デスクトップ：横スライド ======
+  // ====== デスクトップ（横スライド） ======
   if (!isMobile) {
     let currentSlide = 0;
 
     const updateSlide = () => {
       slidesContainer.style.transform = `translateX(${-currentSlide * 100}%)`;
-      currentSlideSpan.textContent = currentSlide + 1;
-      prevBtn.disabled = currentSlide === 0;
-      nextBtn.disabled = currentSlide === totalSlides - 1;
+      if (currentSlideSpan) currentSlideSpan.textContent = String(currentSlide + 1);
+      if (prevBtn) prevBtn.disabled = currentSlide === 0;
+      if (nextBtn) nextBtn.disabled = currentSlide === totalSlides - 1;
       setEraLabelByIndex(currentSlide); // 確定タイミングで反映
     };
 
@@ -1541,13 +1562,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     prevBtn?.addEventListener('click', previousSlide);
     nextBtn?.addEventListener('click', nextSlide);
-
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
       if (e.key === 'ArrowLeft') previousSlide();
     });
 
-    // ドラッグ操作（確定後のみ更新）
+    // ドラッグでのスワイプ（確定後のみ更新）
     let touchStartX = 0, touchCurrentX = 0, isDragging = false;
     const onTouchStart = (e) => {
       if (!e.touches?.length) return;
@@ -1586,9 +1606,9 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSlide();
   }
 
-  // ====== モバイル：縦スクロール ======
+  // ====== モバイル（縦スクロール） ======
   if (isMobile) {
-    // 「しっかり見えたスライド」で更新（しきい値 0.6 で早すぎ防止）
+    // 「しっかり見えたとき」だけ更新（0.6以上）
     const io = new IntersectionObserver((entries) => {
       let topEntry = null;
       for (const en of entries) {
@@ -1600,12 +1620,28 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (topEntry) {
         const idx = Array.prototype.indexOf.call(slides, topEntry.target);
-        if (currentSlideSpan.textContent !== String(idx + 1)) {
+        if (currentSlideSpan && currentSlideSpan.textContent !== String(idx + 1)) {
           currentSlideSpan.classList.add('updating');
           setTimeout(() => { currentSlideSpan.textContent = String(idx + 1); }, 120);
           setTimeout(() => { currentSlideSpan.classList.remove('updating'); }, 260);
         }
         setEraLabelByIndex(idx);
+      }
+    }, {
+      root: null,
+      threshold: [0.1, 0.3, 0.6, 0.9],
+      rootMargin: '0px 0px -20% 0px'
+    });
+
+    slides.forEach(slide => io.observe(slide));
+
+    // 初期
+    if (currentSlideSpan) currentSlideSpan.textContent = '1';
+    setEraLabelByIndex(0);
+  }
+});
+</script>
+
 
 
 </body>
