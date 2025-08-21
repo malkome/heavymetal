@@ -448,6 +448,30 @@ img, video, iframe {
     font-size: .9rem;
   }
 }
+  #main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #111;
+  color: #fff;
+  text-align: center;
+  padding: 0.5em 0;
+  font-family: sans-serif;
+  z-index: 1000;
+}
+
+#main-header .header-line1 {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+#main-header .header-line2 {
+  font-size: 1em;
+  margin-top: 0.2em;
+  color: #ccc;
+}
+
 
 
 
@@ -456,13 +480,11 @@ img, video, iframe {
 <body>
   <div class="presentation">
     <!-- Header -->
-<div class="header">
-  <h1>ヘヴィメタルの歴史</h1>
-  <div style="display:flex; gap:10px; align-items:center;">
-    <div class="slide-counter">
-      <span id="current-slide" class="mobile-current-slide">1</span> /
-      <span id="total-slides">-</span>
-    </div>
+<header id="main-header">
+  <div class="header-line1">ヘヴィメタルの歴史</div>
+  <div class="header-line2" id="era-label"></div>
+</header>
+
     <!-- 追加：年代インジケータ -->
     <div class="decade-indicator" id="decade-indicator"><span id="current-decade">—</span></div>
   </div>
@@ -1488,199 +1510,44 @@ As I plunge on into certain death
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Mobile viewport height fix ---
-  const setVh = () => {
-    const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-  };
-  setVh();
-  window.addEventListener('resize', setVh);
-  window.addEventListener('orientationchange', setVh);
-
-  // === 年代表示：各スライドに data-era を自動付与し、ヘッダへ表示 ===
-  const ERA_REGEX = /(19[6-9]0's|2000's|2010's|2020's|1960年代|1970年代|1980年代|1990年代|2000年代|2010年代|2020年代)/i;
-  const eraNormalize = (txt) => {
-    if(!txt) return null;
-    txt = txt.replace(/\u200b/g,'').trim();
-    if(/1960/.test(txt)) return '1960s';
-    if(/1970/.test(txt)) return '1970s';
-    if(/1980/.test(txt)) return '1980s';
-    if(/1990/.test(txt)) return '1990s';
-    if(/2000/.test(txt)) return '2000s';
-    if(/2010/.test(txt)) return '2010s';
-    if(/2020/.test(txt)) return '2020s';
-    return null;
-  };
-
+  const eraLabel = document.getElementById('era-label');
   const slides = document.querySelectorAll('.slide');
-  const eraOf = (slide) => {
-    const cand = [
-      slide.querySelector('.big-title'),
-      slide.querySelector('h2'),
-      slide.querySelector('.mid-title')
-    ].filter(Boolean).map(el => el.textContent || '').join(' || ');
-    const m = cand && cand.match(ERA_REGEX);
-    return eraNormalize(m && m[1]);
-  };
+  let currentIndex = 0;
 
-  // 先頭から走査：見つけた年代を以降スライドに継承
-  let currentEraSeed = null;
-  slides.forEach(slide => {
-    const found = eraOf(slide);
-    if(found) currentEraSeed = found;
-    if(currentEraSeed) slide.dataset.era = currentEraSeed;
+  // 各スライドに data-era を仕込む
+  slides.forEach((slide) => {
+    const bigTitle = slide.querySelector('.big-title');
+    if (bigTitle) {
+      slide.setAttribute('data-era', bigTitle.textContent.trim());
+    }
   });
 
-  const decadeEl = document.getElementById('current-decade');
-  const setEraLabelByIndex = (idx) => {
-    const s = slides[idx];
-    decadeEl.textContent = (s && s.dataset.era) ? s.dataset.era : '—';
+  // 表示更新用関数
+  const updateHeader = (index) => {
+    const slide = slides[index];
+    if (slide && slide.dataset.era) {
+      eraLabel.textContent = slide.dataset.era;
+    } else {
+      eraLabel.textContent = '';
+    }
   };
 
-  // --- Check if mobile or desktop ---
-  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  // 初期表示
+  updateHeader(currentIndex);
 
-  // --- Desktop Slideshow Logic ---
-  if (!isMobile) {
-    let currentSlide = 0;
-    const slidesContainer = document.getElementById('slides-container');
-    const currentSlideSpan = document.getElementById('current-slide');
-    const totalSlidesSpan = document.getElementById('total-slides');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-
-    const totalSlides = slides.length;
-    totalSlidesSpan.textContent = totalSlides;
-
-    const updateSlide = () => {
-      slidesContainer.style.transform = `translateX(${-currentSlide * 100}%)`;
-      currentSlideSpan.textContent = currentSlide + 1;
-      prevBtn.disabled = currentSlide === 0;
-      nextBtn.disabled = currentSlide === totalSlides - 1;
-      setEraLabelByIndex(currentSlide); // ★ 年代更新
-    };
-
-    const nextSlide = () => {
-      if (currentSlide < totalSlides - 1) {
-        currentSlide++;
-        updateSlide();
-      }
-    };
-
-    const previousSlide = () => {
-      if (currentSlide > 0) {
-        currentSlide--;
-        updateSlide();
-      }
-    };
-
-    prevBtn.addEventListener('click', previousSlide);
-    nextBtn.addEventListener('click', nextSlide);
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
-      if (e.key === 'ArrowLeft') previousSlide();
-    });
-
-    // --- Drag / swipe on desktop ---
-    let touchStartX = 0;
-    let touchCurrentX = 0;
-    let isDragging = false;
-    
-    const onTouchStart = (e) => {
-      touchStartX = e.touches[0].clientX;
-      isDragging = true;
-      slidesContainer.classList.add('dragging');
-    };
-
-    const onTouchMove = (e) => {
-      if (!isDragging) return;
-      touchCurrentX = e.touches[0].clientX;
-      const diff = touchCurrentX - touchStartX;
-      const baseTranslate = -currentSlide * slidesContainer.clientWidth;
-      slidesContainer.style.transform = `translateX(${baseTranslate + diff}px)`;
-    };
-
-    const onTouchEnd = () => {
-      if (!isDragging) return;
-      isDragging = false;
-      slidesContainer.classList.remove('dragging');
-      
-      const diff = touchCurrentX - touchStartX;
-      const threshold = slidesContainer.clientWidth / 4;
-
-      if (Math.abs(diff) > threshold) {
-        if (diff < 0) { nextSlide(); } else { previousSlide(); }
-      } else {
-        updateSlide();
-      }
-      touchStartX = 0;
-      touchCurrentX = 0;
-    };
-
-    slidesContainer.addEventListener('touchstart', onTouchStart, { passive: true });
-    slidesContainer.addEventListener('touchmove', onTouchMove, { passive: true });
-    slidesContainer.addEventListener('touchend', onTouchEnd);
-
-    // 初期表示
-    updateSlide();
-  }
-
-  // --- Mobile Scroll-based Page Counter Logic ---
-  if (isMobile) {
-    const currentSlideSpan = document.getElementById('current-slide');
-    const totalSlidesSpan = document.getElementById('total-slides');
-    const totalSlides = slides.length;
-    totalSlidesSpan.textContent = totalSlides;
-    
-    let currentVisibleSlide = 1;
-    let isAnimating = false;
-    
-    const updateMobilePageCounter = () => {
-      if (isAnimating) return;
-      
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
-      const triggerPoint = scrollTop + windowHeight * 0.3;
-      
-      let newSlideNumber = 1;
-      
-      slides.forEach((slide, index) => {
-        const slideTop = slide.offsetTop;
-        if (triggerPoint >= slideTop) newSlideNumber = index + 1;
-      });
-      
-      if (newSlideNumber !== currentVisibleSlide) {
-        currentVisibleSlide = newSlideNumber;
-        isAnimating = true;
-        
-        currentSlideSpan.classList.add('updating');
-        setTimeout(() => {
-          currentSlideSpan.textContent = currentVisibleSlide;
-        }, 150);
-        setTimeout(() => {
-          currentSlideSpan.classList.remove('updating');
-          isAnimating = false;
-        }, 300);
-
-        // ★ 年代更新（インデックスは0始まり）
-        setEraLabelByIndex(currentVisibleSlide - 1);
-      }
-    };
-    
-    let scrollTimeout;
-    const handleScroll = () => {
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(updateMobilePageCounter, 50);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    updateMobilePageCounter();
-    // 初期化（最上部で年代が出るように）
-    setEraLabelByIndex(0);
-  }
+  // 例: スライド切り替え処理（左右キーで移動する場合）
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') {
+      currentIndex = (currentIndex + 1) % slides.length;
+      updateHeader(currentIndex);
+    } else if (e.key === 'ArrowLeft') {
+      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+      updateHeader(currentIndex);
+    }
+  });
 });
 </script>
+
 
 </body>
 </html>
