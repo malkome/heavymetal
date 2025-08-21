@@ -24,7 +24,7 @@ body {
     var(--bg);
   color: var(--paper);
   font-family: "Helvetica Neue", Arial, system-ui, -apple-system, "Segoe UI", sans-serif;
-  overflow: hidden; /* Desktop is fixed */
+  overflow: hidden; /* Desktopは横スライド固定 */
 }
 
 /* --- App Frame --- */
@@ -37,52 +37,71 @@ body {
 }
 
 /* =============================
-   Header (ONE LINE)
-   左: タイトル / 中央: 現在スライドの big-title / 右: ページカウンタ
+   Header (TWO ROWS)
+   1行目: タイトル
+   2行目: 現在スライドの big-title（中央） + ページカウンタ（右）
    ============================= */
 .header {
   position: relative;
-  padding: 12px 16px;
+  padding: 10px 14px 12px;
   background: rgba(0,0,0,0.6);
   border-bottom: 3px solid var(--accent);
   backdrop-filter: blur(10px);
   z-index: 100;
 }
-.header-bar {
-  display: grid;
-  grid-template-columns: auto 1fr auto; /* 左: タイトル / 中央: 年代 / 右: カウンタ */
+.header-row1 {
+  display: flex;
   align-items: center;
-  column-gap: 16px;
+  justify-content: center;
 }
 .header h1 {
   margin: 0;
-  font-size: 1.4rem; /* 1行に収めるため控えめ */
+  font-size: 1.5rem;
   color: var(--accent);
-  white-space: nowrap;
   text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.header-row2 {
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: 1fr auto; /* 中央: era-label（伸縮） / 右: counter */
+  align-items: center;
+  column-gap: 10px;
 }
 .era-label {
   justify-self: center;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--accent2);
+  text-align: center;
+  max-width: min(80vw, 1000px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   background: rgba(255,136,0,0.10);
+  color: var(--accent2);
   padding: 6px 10px;
   border-radius: 14px;
   border: 1px solid rgba(255,170,51,0.30);
   backdrop-filter: blur(5px);
-  text-align: center;
-  max-width: min(70vw, 900px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap; /* 1行で省略（…） */
 }
 .slide-counter {
+  justify-self: end;
   color: var(--accent2);
   font-size: 1rem;
   font-weight: 700;
   white-space: nowrap;
 }
+
+/* ヘッダー内に差し込まれた .big-title を小さく1行で表示 */
+.header .big-title {
+  font-size: 1rem !important;
+  font-weight: 800;
+  color: var(--accent2) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-bottom: none !important;
+  text-shadow: none !important;
+  display: inline !important;
+}
+.header .big-title br { display: none !important; }
 
 /* =============================
    Slides (Desktop)
@@ -109,13 +128,13 @@ body {
   padding: 40px;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Vertically center content */
-  align-items: center;     /* Horizontally center content */
-  overflow-y: auto;        /* Allow scrolling within a slide if content overflows */
+  justify-content: center; /* 縦中央 */
+  align-items: center;     /* 横中央 */
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* --- Slide Content Styling --- */
+/* --- Slide Content --- */
 .slide-content-wrapper {
   max-width: 1200px;
   width: 100%;
@@ -219,7 +238,7 @@ body {
   font-size: 1rem;
   line-height: 1.55;
   color: #fff;
-  flex-grow: 1; /* Make captions equal height */
+  flex-grow: 1; /* 高さ揃え */
 }
 .photo-caption strong {
   color: var(--accent2);
@@ -298,26 +317,23 @@ body {
 }
 
 /* =============================
-   Mobile Optimization (max-width: 768px)
+   Mobile (max-width: 768px)
    ============================= */
 @media (max-width: 768px) {
   body {
-    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-y: auto; /* モバイルは縦スクロール */
     overflow-x: hidden;
   }
   .presentation {
-    height: auto; /* Let height be determined by content */
+    height: auto; /* コンテンツに合わせる */
   }
 
-  /* ヘッダー（1行） */
-  .header { position: sticky; top: 0; padding: 10px 12px; }
-  .header h1 { font-size: 1.1rem; }
-  .era-label { font-size: .9rem; max-width: 56vw; padding: 4px 8px; }
+  /* ヘッダー（2行） */
+  .header { position: sticky; top: 0; padding: 8px 10px 10px; }
+  .header h1 { font-size: 1.2rem; }
+  .era-label { font-size: .9rem; max-width: 70vw; padding: 4px 8px; }
   .slide-counter {
-    display: flex;
-    align-items: center;
-    font-size: 0.9rem;
-    color: var(--accent2);
+    font-size: .9rem;
     background: rgba(255, 136, 0, 0.1);
     padding: 4px 10px;
     border-radius: 14px;
@@ -331,19 +347,19 @@ body {
     transform-origin: center;
   }
   .mobile-current-slide.updating {
-    transform: scale(1.15);
+    transform: scale(1.12);
     color: #fff;
   }
 
   /* 縦積みレイアウト */
   .main-content {
-    overflow: visible; /* Remove overflow hidden */
+    overflow: visible;
     height: auto;
   }
   .slides-container {
-    flex-direction: column; /* Stack slides vertically */
+    flex-direction: column;
     height: auto;
-    transform: none !important; /* Disable JS transform */
+    transform: none !important;
     transition: none;
   }
   .slide {
@@ -358,19 +374,17 @@ body {
   }
   .slide:last-child { border-bottom: none; }
   .slide:first-child {
-    min-height: calc(var(--vh, 1vh) * 100 - 64px); /* Make first slide fill screen */
+    min-height: calc(var(--vh, 1vh) * 100 - 64px);
     justify-content: center;
   }
 
-  /* テキストはみ出し対策 */
-  .slide p,
-  .photo-caption,
-  blockquote {
+  /* 長文はみ出し対策 */
+  .slide p, .photo-caption, blockquote {
     word-break: break-word;
     overflow-wrap: anywhere;
   }
 
-  /* 画像レイアウト */
+  /* 画像・格子 */
   .split-slide,
   .photo-row.two,
   .photo-row.three,
@@ -386,11 +400,11 @@ body {
   .photo-card img { height: 200px; }
   .interlude-slide-stacked img { max-height: 40vh; }
 
-  /* デスクトップ用ナビを非表示（モバイルはスクロール） */
+  /* デスクトップ用ナビは隠す */
   .navigation { display: none; }
 }
 
-/* メディア要素の共通制御 */
+/* 共通メディア制御 */
 img, video, iframe {
   max-width: 100%;
   height: auto;
@@ -402,10 +416,9 @@ img, video, iframe {
   display: block;
   width: 100%;
   border-radius: 12px;
-  overflow: hidden;               /* 角丸に合わせて切り抜き */
+  overflow: hidden;
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
-/* もとの見た目を継承 */
 .hero-band > img.title-image-top {
   width: 100%;
   height: auto;
@@ -413,16 +426,14 @@ img, video, iframe {
   object-fit: cover;
   display: block;
 }
-/* 下辺にかぶせる半透明グラデ＋バンド名テキスト */
 .hero-band::after {
-  content: attr(data-band);       /* ← data-band の文字列が表示される */
+  content: attr(data-band);
   position: absolute;
   left: 0; right: 0; bottom: 0;
   padding: 10px 16px;
   font-weight: 800;
   letter-spacing: .5px;
   text-shadow: 0 2px 6px rgba(0,0,0,.6);
-  /* 背景の色がゆっくり循環 */
   background: linear-gradient(90deg,
               rgba(255,136,0,.85),
               rgba(255,170,51,.85),
@@ -437,22 +448,8 @@ img, video, iframe {
   0% { filter: hue-rotate(0deg); }
   100% { filter: hue-rotate(360deg); }
 }
-  /* === ヘッダーに挿入した .big-title を 1行・小さめに整える === */
-.header .big-title {
-  /* 元の .big-title より優先させるため指定を上書き */
-  font-size: 1.05rem !important;
-  font-weight: 800;
-  color: var(--accent2) !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  border-bottom: none !important;
-  text-shadow: none !important;
-  display: inline !important;   /* 1行に収める */
-}
-.header .big-title br { display: none !important; } /* 改行を潰して1行表示 */
-
 </style>
+
 
 </head>
 <body>
