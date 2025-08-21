@@ -27,7 +27,7 @@ body {
   overflow: hidden; /* Desktop is fixed */
 }
 
-/* --- Header --- */
+/* --- Header (2 lines) --- */
 .presentation {
   position: relative;
   width: 100vw;
@@ -36,14 +36,25 @@ body {
   flex-direction: column;
 }
 .header {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 40px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 40px 16px;
   background: rgba(0,0,0,0.6);
   border-bottom: 3px solid var(--accent);
   backdrop-filter: blur(10px);
   z-index: 100;
+}
+.header-row1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header-row2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .header h1 {
   margin: 0;
@@ -55,6 +66,21 @@ body {
   color: var(--accent2);
   font-size: 1.1rem;
   font-weight: 700;
+}
+.era-label {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--accent2);
+  background: rgba(255,136,0,0.10);
+  padding: 6px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,170,51,0.30);
+  backdrop-filter: blur(5px);
+  text-align: center;
+  max-width: min(92vw, 1200px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* --- Slides (Desktop) --- */
@@ -283,24 +309,35 @@ body {
     position: sticky;
     top: 0;
     padding: 12px 15px;
+    gap: 6px;
   }
-  .header h1 {
-    font-size: 1.4rem;
-  }
-  /* 二段レイアウト画像が横にはみ出ないように */
-.two-rows .split-bottom .image img {
-  width: 100% !important;
-  height: auto !important;
-  max-height: none !important;
-}
+  .header h1 { font-size: 1.4rem; }
 
-/* 長いキャプションや単語での横スクロール対策（任意） */
-.slide p,
-.photo-caption,
-blockquote {
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
+  .era-label { font-size: .9rem; max-width: 94vw; }
+  .slide-counter {
+    display: flex !important;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent2);
+    background: rgba(255, 136, 0, 0.1);
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 170, 51, 0.3);
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+  }
+  .mobile-current-slide {
+    color: var(--accent);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+
+  .mobile-current-slide.updating {
+    transform: scale(1.2);
+    color: #fff;
+  }
 
   /* --- Switch to Vertical Scroll Layout --- */
   .main-content {
@@ -323,50 +360,14 @@ blockquote {
     justify-content: flex-start;
     border-bottom: 2px solid rgba(255, 170, 51, 0.5);
   }
-  .slide:last-child {
-    border-bottom: none;
-  }
+  .slide:last-child { border-bottom: none; }
   .slide:first-child {
-    min-height: calc(var(--vh, 1vh) * 100 - 64px); /* Make first slide fill screen */
+    min-height: calc(var(--vh, 1vh) * 100 - 64px);
     justify-content: center;
   }
 
-/* --- Hide Desktop Navigation --- */
-.navigation {
-  display: none;
-}
-
-/* --- Mobile Page Counter --- */
-.slide-counter {
-  display: flex !important;
-  align-items: center;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--accent2);
-  background: rgba(255, 136, 0, 0.1);
-  padding: 6px 12px;
-  border-radius: 15px;
-  border: 1px solid rgba(255, 170, 51, 0.3);
-  backdrop-filter: blur(5px);
-  transition: all 0.3s ease;
-}
-
-.mobile-current-slide {
-  color: var(--accent);
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  transform-origin: center;
-}
-
-.mobile-current-slide.updating {
-  transform: scale(1.2);
-  color: #fff;
-}
-
   /* --- Adjust Content for Mobile --- */
-  .slide-content-wrapper {
-    padding: 0;
-  }
+  .slide-content-wrapper { padding: 0; }
   .slide h2 { font-size: 1.6rem; }
   .slide p { font-size: 0.95rem; line-height: 1.7; }
   .big-title { font-size: 2.2rem; }
@@ -385,110 +386,37 @@ blockquote {
   .photo-card img { height: 200px; }
   .interlude-slide-stacked img { max-height: 40vh; }
 }
-  /* 画像が親幅を超えないように */
-img, video, iframe {
-  max-width: 100%;
-  height: auto;
-}
 
-  /* === 画像上にバンド名バッジ（色が変わる） === */
-.hero-band {
-  position: relative;
-  display: block;
-  width: 100%;
-  border-radius: 12px;
-  overflow: hidden;               /* 角丸に合わせて切り抜き */
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
+/* 画像とバッジの補助 */
+img, video, iframe { max-width: 100%; height: auto; }
 
-/* もとの見た目を継承 */
-.hero-band > img.title-image-top {
-  width: 100%;
-  height: auto;
-  max-height: 40vh;
-  object-fit: cover;
-  display: block;
-}
-
-/* 下辺にかぶせる半透明グラデ＋バンド名テキスト */
+/* === 画像上にバンド名バッジ（色が変わる） === */
+.hero-band { position: relative; display: block; width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+.hero-band > img.title-image-top { width: 100%; height: auto; max-height: 40vh; object-fit: cover; display: block; }
 .hero-band::after {
-  content: attr(data-band);       /* ← data-band の文字列が表示される */
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding: 10px 16px;
-  font-weight: 800;
-  letter-spacing: .5px;
+  content: attr(data-band);
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 10px 16px; font-weight: 800; letter-spacing: .5px;
   text-shadow: 0 2px 6px rgba(0,0,0,.6);
-  /* 背景の色がゆっくり循環 */
-  background: linear-gradient(90deg,
-              rgba(255,136,0,.85),
-              rgba(255,170,51,.85),
-              rgba(120,80,255,.85),
-              rgba(255,80,120,.85));
+  background: linear-gradient(90deg, rgba(255,136,0,.85), rgba(255,170,51,.85), rgba(120,80,255,.85), rgba(255,80,120,.85));
   animation: hueShift 10s linear infinite;
-  color: #fff;
-  backdrop-filter: blur(2px);
+  color: #fff; backdrop-filter: blur(2px);
   border-top: 1px solid rgba(255,255,255,.12);
 }
-/* ヘッダ右の年代バッジ */
-.decade-indicator{
-  color: var(--accent2);
-  font-size: 1.05rem;
-  font-weight: 800;
-  background: rgba(255, 136, 0, 0.10);
-  padding: 6px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,170,51,0.30);
-  margin-left: 10px;
-  backdrop-filter: blur(5px);
-  white-space: nowrap;
-}
-@media (max-width: 768px){
-  .decade-indicator{
-    font-size: .9rem;
-  }
-}
-  #main-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: #111;
-  color: #fff;
-  text-align: center;
-  padding: 0.5em 0;
-  font-family: sans-serif;
-  z-index: 1000;
-}
-
-#main-header .header-line1 {
-  font-size: 1.2em;
-  font-weight: bold;
-}
-
-#main-header .header-line2 {
-  font-size: 1em;
-  margin-top: 0.2em;
-  color: #ccc;
-}
-
-
-
-
 </style>
 </head>
 <body>
   <div class="presentation">
-    <!-- Header -->
-<header id="main-header">
-  <div class="header-line1">ヘヴィメタルの歴史</div>
-  <div class="header-line2" id="era-label"></div>
-</header>
-
-    <!-- 追加：年代インジケータ -->
-    <div class="decade-indicator" id="decade-indicator"><span id="current-decade">—</span></div>
-  </div>
-</div>
+    <!-- Header (two lines) -->
+    <div class="header">
+      <div class="header-row1">
+        <h1>ヘヴィメタルの歴史</h1>
+        <div class="slide-counter"><span id="current-slide" class="mobile-current-slide">1</span>/ <span id="total-slides">-</span></div>
+      </div>
+      <div class="header-row2">
+        <div class="era-label" id="era-label">—</div>
+      </div>
+    </div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -1502,52 +1430,178 @@ As I plunge on into certain death
 
 
     <!-- Navigation -->
-    <div class="navigation">
-      <button class="nav-btn" id="prev-btn">◀</button>
-      <button class="nav-btn" id="next-btn">▶</button>
+       <div class="navigation">
+        <button class="nav-btn" id="prev-btn">◀</button>
+        <button class="nav-btn" id="next-btn">▶</button>
+      </div>
     </div>
   </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const eraLabel = document.getElementById('era-label');
-  const slides = document.querySelectorAll('.slide');
-  let currentIndex = 0;
+  // --- Mobile viewport height fix ---
+  const setVh = () => {
+    const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  };
+  setVh();
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', setVh);
 
-  // 各スライドに data-era を仕込む
+  // === 参照要素 ===
+  const slides = document.querySelectorAll('.slide');
+  const slidesContainer = document.getElementById('slides-container');
+  const currentSlideSpan = document.getElementById('current-slide');
+  const totalSlidesSpan = document.getElementById('total-slides');
+  const eraLabelEl = document.getElementById('era-label');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  const totalSlides = slides.length;
+  totalSlidesSpan.textContent = totalSlides;
+
+  // === 各スライドに data-era を仕込み（big-title のテキストをそのまま使用） ===
+  // big-titleが無いスライドは直前のbig-titleを継承
+  let lastEraText = '';
   slides.forEach((slide) => {
     const bigTitle = slide.querySelector('.big-title');
-    if (bigTitle) {
-      slide.setAttribute('data-era', bigTitle.textContent.trim());
+    if (bigTitle && bigTitle.textContent.trim()) {
+      lastEraText = bigTitle.textContent.trim();
     }
+    if (lastEraText) slide.dataset.era = lastEraText;
   });
 
-  // 表示更新用関数
-  const updateHeader = (index) => {
-    const slide = slides[index];
-    if (slide && slide.dataset.era) {
-      eraLabel.textContent = slide.dataset.era;
-    } else {
-      eraLabel.textContent = '';
-    }
+  const setEraLabelByIndex = (idx) => {
+    const s = slides[idx];
+    const label = s && s.dataset.era ? s.dataset.era : '—';
+    eraLabelEl.textContent = label;
   };
 
-  // 初期表示
-  updateHeader(currentIndex);
+  // === デスクトップ：横スライド ===
+  if (!isMobile) {
+    let currentSlide = 0;
 
-  // 例: スライド切り替え処理（左右キーで移動する場合）
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') {
-      currentIndex = (currentIndex + 1) % slides.length;
-      updateHeader(currentIndex);
-    } else if (e.key === 'ArrowLeft') {
-      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-      updateHeader(currentIndex);
-    }
-  });
+    const updateSlide = () => {
+      slidesContainer.style.transform = `translateX(${-currentSlide * 100}%)`;
+      currentSlideSpan.textContent = currentSlide + 1;
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === totalSlides - 1;
+      setEraLabelByIndex(currentSlide); // ヘッダー下段更新
+    };
+
+    const nextSlide = () => {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    };
+
+    const previousSlide = () => {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    };
+
+    prevBtn.addEventListener('click', previousSlide);
+    nextBtn.addEventListener('click', nextSlide);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+      if (e.key === 'ArrowLeft') previousSlide();
+    });
+
+    // Drag / swipe on desktop (touchpad/trackpad)
+    let touchStartX = 0;
+    let touchCurrentX = 0;
+    let isDragging = false;
+    
+    const onTouchStart = (e) => {
+      touchStartX = e.touches[0].clientX;
+      isDragging = true;
+      slidesContainer.classList.add('dragging');
+    };
+
+    const onTouchMove = (e) => {
+      if (!isDragging) return;
+      touchCurrentX = e.touches[0].clientX;
+      const diff = touchCurrentX - touchStartX;
+      const baseTranslate = -currentSlide * slidesContainer.clientWidth;
+      slidesContainer.style.transform = `translateX(${baseTranslate + diff}px)`;
+    };
+
+    const onTouchEnd = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      slidesContainer.classList.remove('dragging');
+      
+      const diff = touchCurrentX - touchStartX;
+      const threshold = slidesContainer.clientWidth / 4;
+
+      if (Math.abs(diff) > threshold) {
+        if (diff < 0) nextSlide(); else previousSlide();
+      } else {
+        updateSlide();
+      }
+      touchStartX = 0;
+      touchCurrentX = 0;
+    };
+
+    slidesContainer.addEventListener('touchstart', onTouchStart, { passive: true });
+    slidesContainer.addEventListener('touchmove', onTouchMove, { passive: true });
+    slidesContainer.addEventListener('touchend', onTouchEnd);
+
+    // 初期表示
+    updateSlide();
+  }
+
+  // === モバイル：縦スクロールでページカウンタ＆年代を更新 ===
+  if (isMobile) {
+    let currentVisibleSlide = 1;
+    let isAnimating = false;
+
+    const updateMobilePageCounter = () => {
+      if (isAnimating) return;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const triggerPoint = scrollTop + windowHeight * 0.3;
+      let newSlideNumber = 1;
+
+      slides.forEach((slide, index) => {
+        const slideTop = slide.offsetTop;
+        if (triggerPoint >= slideTop) newSlideNumber = index + 1;
+      });
+
+      if (newSlideNumber !== currentVisibleSlide) {
+        currentVisibleSlide = newSlideNumber;
+        isAnimating = true;
+
+        // カウンタ更新のアニメ
+        currentSlideSpan.classList.add('updating');
+        setTimeout(() => { currentSlideSpan.textContent = currentVisibleSlide; }, 150);
+        setTimeout(() => {
+          currentSlideSpan.classList.remove('updating');
+          isAnimating = false;
+        }, 300);
+
+        // 年代ラベル更新
+        setEraLabelByIndex(currentVisibleSlide - 1);
+      }
+    };
+
+    window.addEventListener('scroll', () => {
+      // Throttle
+      if (updateMobilePageCounter._t) cancelAnimationFrame(updateMobilePageCounter._t);
+      updateMobilePageCounter._t = requestAnimationFrame(updateMobilePageCounter);
+    });
+
+    // 初期
+    currentSlideSpan.textContent = 1;
+    setEraLabelByIndex(0);
+    updateMobilePageCounter();
+  }
 });
 </script>
-
-
 </body>
 </html>
