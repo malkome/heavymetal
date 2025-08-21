@@ -457,14 +457,14 @@ img, video, iframe {
 </head>
 <body>
   <div class="presentation">
-<!-- Header (one line) -->
 <div class="header">
-  <div class="header-bar">
+  <div class="header-row1">
     <h1>ヘヴィメタルの歴史</h1>
+  </div>
+  <div class="header-row2">
     <div class="era-label" id="era-label">—</div>
     <div class="slide-counter">
-      <span id="current-slide" class="mobile-current-slide">1</span>
-      / <span id="total-slides">-</span>
+      <span id="current-slide" class="mobile-current-slide">1</span>/<span id="total-slides">-</span>
     </div>
   </div>
 </div>
@@ -1513,18 +1513,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const totalSlides = slides.length;
   if (totalSlidesSpan) totalSlidesSpan.textContent = totalSlides;
 
-  // === 各スライドの <div class="big-title"> を “まるごと”(outerHTML) 取る。無ければ null ===
+  // 各スライドの <div class="big-title"> を“まるごと”（outerHTML）収集
   const eraHTML = Array.from(slides).map(slide => {
     const bt = slide.querySelector('.big-title');
-    return bt ? bt.outerHTML : null;  // ← まるごと入れるので見た目を保てる
+    return bt ? bt.outerHTML : null;
   });
 
-  // 初期値：最初に見つかった big-title を使う（先頭スライドに無いケース対策）
+  // 初期表示：最初に見つかった big-title を使う
   const firstEraHTML = eraHTML.find(Boolean) || '—';
   let lastEraHTML = firstEraHTML;
   eraLabelEl.innerHTML = lastEraHTML;
 
-  // === ヘッダー更新（big-title が無ければ直前の表示維持） ===
+  // ヘッダー更新（big-title 無しなら直前の表示を維持）
   const setEraLabelByIndex = (idx) => {
     const html = eraHTML[idx];
     if (html) {
@@ -1535,7 +1535,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // ====== デスクトップ（横スライド） ======
+  // ====== デスクトップ：横スライド ======
   if (!isMobile) {
     let currentSlide = 0;
 
@@ -1544,7 +1544,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentSlideSpan) currentSlideSpan.textContent = String(currentSlide + 1);
       if (prevBtn) prevBtn.disabled = currentSlide === 0;
       if (nextBtn) nextBtn.disabled = currentSlide === totalSlides - 1;
-      setEraLabelByIndex(currentSlide); // 確定タイミングで反映
+      setEraLabelByIndex(currentSlide);
     };
 
     const nextSlide = () => {
@@ -1562,12 +1562,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     prevBtn?.addEventListener('click', previousSlide);
     nextBtn?.addEventListener('click', nextSlide);
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
       if (e.key === 'ArrowLeft') previousSlide();
     });
 
-    // ドラッグでのスワイプ（確定後のみ更新）
+    // スワイプ（確定後のみ更新）
     let touchStartX = 0, touchCurrentX = 0, isDragging = false;
     const onTouchStart = (e) => {
       if (!e.touches?.length) return;
@@ -1601,14 +1602,14 @@ document.addEventListener('DOMContentLoaded', () => {
     slidesContainer.addEventListener('touchmove', onTouchMove, { passive: true });
     slidesContainer.addEventListener('touchend', onTouchEnd);
 
-    // 初期表示
+    // 初期
     setEraLabelByIndex(0);
     updateSlide();
   }
 
-  // ====== モバイル（縦スクロール） ======
+  // ====== モバイル：縦スクロール ======
   if (isMobile) {
-    // 「しっかり見えたとき」だけ更新（0.6以上）
+    // 「しっかり見えたとき」だけ更新（0.6）
     const io = new IntersectionObserver((entries) => {
       let topEntry = null;
       for (const en of entries) {
@@ -1641,6 +1642,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
 
 
 
