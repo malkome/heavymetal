@@ -1448,7 +1448,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', setVh);
   window.addEventListener('orientationchange', setVh);
 
-  // === 参照要素 ===
   const slides = document.querySelectorAll('.slide');
   const slidesContainer = document.getElementById('slides-container');
   const currentSlideSpan = document.getElementById('current-slide');
@@ -1456,29 +1455,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const eraLabelEl = document.getElementById('era-label');
   const prevBtn = document.getElementById('prev-btn');
   const nextBtn = document.getElementById('next-btn');
-
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
   const totalSlides = slides.length;
   totalSlidesSpan.textContent = totalSlides;
 
-  // === 各スライドに data-era を仕込み（big-title のテキストをそのまま使用） ===
-  // big-titleが無いスライドは直前のbig-titleを継承
-  let lastEraText = '';
-  slides.forEach((slide) => {
-    const bigTitle = slide.querySelector('.big-title');
-    if (bigTitle && bigTitle.textContent.trim()) {
-      lastEraText = bigTitle.textContent.trim();
-    }
-    if (lastEraText) slide.dataset.era = lastEraText;
+  // === 各スライドの big-title(HTML) を収集（無ければ null） ===
+  const eraHTML = Array.from(slides).map(slide => {
+    const bt = slide.querySelector('.big-title');
+    return bt ? bt.innerHTML.trim() : null; // innerHTMLそのまま
   });
 
+  // === ヘッダー表示更新（big-titleが無ければ直前の表示を維持） ===
+  let lastEraHTML = '—';
   const setEraLabelByIndex = (idx) => {
-    const s = slides[idx];
-    const label = s && s.dataset.era ? s.dataset.era : '—';
-    eraLabelEl.textContent = label;
+    const html = eraHTML[idx];
+    if (html && html.length > 0) {
+      eraLabelEl.innerHTML = html;
+      lastEraHTML = html;
+    } else {
+      eraLabelEl.innerHTML = lastEraHTML; // 維持
+    }
   };
 
-  // === デスクトップ：横スライド ===
+  // ====== デスクトップ（横スライド） ======
   if (!isMobile) {
     let currentSlide = 0;
 
@@ -1487,7 +1487,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentSlideSpan.textContent = currentSlide + 1;
       prevBtn.disabled = currentSlide === 0;
       nextBtn.disabled = currentSlide === totalSlides - 1;
-      setEraLabelByIndex(currentSlide); // ヘッダー下段更新
+      setEraLabelByIndex(currentSlide); // big-titleを確定タイミングで反映
     };
 
     const nextSlide = () => {
@@ -1496,7 +1496,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSlide();
       }
     };
-
     const previousSlide = () => {
       if (currentSlide > 0) {
         currentSlide--;
@@ -1504,46 +1503,42 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    prevBtn.addEventListener('click', previousSlide);
-    nextBtn.addEventListener('click', nextSlide);
+    prevBtn?.addEventListener('click', previousSlide);
+    nextBtn?.addEventListener('click', nextSlide);
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
       if (e.key === 'ArrowLeft') previousSlide();
     });
 
-    // Drag / swipe on desktop (touchpad/trackpad)
-    let touchStartX = 0;
-    let touchCurrentX = 0;
-    let isDragging = false;
-    
+    // ドラッグ（確定後にのみ更新）
+    let touchStartX = 0, touchCurrentX = 0, isDragging = false;
     const onTouchStart = (e) => {
+      if (!e.touches?.length) return;
       touchStartX = e.touches[0].clientX;
       isDragging = true;
       slidesContainer.classList.add('dragging');
     };
-
     const onTouchMove = (e) => {
       if (!isDragging) return;
       touchCurrentX = e.touches[0].clientX;
       const diff = touchCurrentX - touchStartX;
       const baseTranslate = -currentSlide * slidesContainer.clientWidth;
       slidesContainer.style.transform = `translateX(${baseTranslate + diff}px)`;
+      // ここでは era を更新しない（確定時のみ）
     };
-
     const onTouchEnd = () => {
       if (!isDragging) return;
       isDragging = false;
       slidesContainer.classList.remove('dragging');
-      
+
       const diff = touchCurrentX - touchStartX;
       const threshold = slidesContainer.clientWidth / 4;
-
       if (Math.abs(diff) > threshold) {
-        if (diff < 0) nextSlide(); else previousSlide();
-      } else {
-        updateSlide();
+        if (diff < 0) currentSlide = Math.min(currentSlide + 1, totalSlides - 1);
+        else currentSlide = Math.max(currentSlide - 1, 0);
       }
+      updateSlide();
       touchStartX = 0;
       touchCurrentX = 0;
     };
@@ -1553,55 +1548,48 @@ document.addEventListener('DOMContentLoaded', () => {
     slidesContainer.addEventListener('touchend', onTouchEnd);
 
     // 初期表示
+    setEraLabelByIndex(0);
     updateSlide();
   }
 
-  // === モバイル：縦スクロールでページカウンタ＆年代を更新 ===
+  // ====== モバイル（縦スクロール） ======
   if (isMobile) {
-    let currentVisibleSlide = 1;
-    let isAnimating = false;
-
-    const updateMobilePageCounter = () => {
-      if (isAnimating) return;
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
-      const triggerPoint = scrollTop + windowHeight * 0.3;
-      let newSlideNumber = 1;
-
-      slides.forEach((slide, index) => {
-        const slideTop = slide.offsetTop;
-        if (triggerPoint >= slideTop) newSlideNumber = index + 1;
-      });
-
-      if (newSlideNumber !== currentVisibleSlide) {
-        currentVisibleSlide = newSlideNumber;
-        isAnimating = true;
-
-        // カウンタ更新のアニメ
-        currentSlideSpan.classList.add('updating');
-        setTimeout(() => { currentSlideSpan.textContent = currentVisibleSlide; }, 150);
-        setTimeout(() => {
-          currentSlideSpan.classList.remove('updating');
-          isAnimating = false;
-        }, 300);
-
-        // 年代ラベル更新
-        setEraLabelByIndex(currentVisibleSlide - 1);
+    // IntersectionObserverで「しっかり見えたら」更新（ヒステリシス 0.6）
+    const io = new IntersectionObserver((entries) => {
+      // 最も見えているスライドを採用
+      let topEntry = null;
+      for (const en of entries) {
+        if (en.isIntersecting) {
+          if (!topEntry || en.intersectionRatio > topEntry.intersectionRatio) {
+            topEntry = en;
+          }
+        }
       }
-    };
-
-    window.addEventListener('scroll', () => {
-      // Throttle
-      if (updateMobilePageCounter._t) cancelAnimationFrame(updateMobilePageCounter._t);
-      updateMobilePageCounter._t = requestAnimationFrame(updateMobilePageCounter);
+      if (topEntry) {
+        const idx = Array.prototype.indexOf.call(slides, topEntry.target);
+        // ページカウンタ更新（小さなアニメ付き）
+        if (currentSlideSpan.textContent !== String(idx + 1)) {
+          currentSlideSpan.classList.add('updating');
+          setTimeout(() => { currentSlideSpan.textContent = String(idx + 1); }, 120);
+          setTimeout(() => { currentSlideSpan.classList.remove('updating'); }, 260);
+        }
+        // era（big-title）更新
+        setEraLabelByIndex(idx);
+      }
+    }, {
+      root: null,
+      threshold: [0.1, 0.3, 0.6, 0.9], // 0.6 超えで十分に見えた扱い
+      rootMargin: '0px 0px -20% 0px'   // 画面下に少し余裕
     });
 
+    slides.forEach(slide => io.observe(slide));
+
     // 初期
-    currentSlideSpan.textContent = 1;
+    currentSlideSpan.textContent = '1';
     setEraLabelByIndex(0);
-    updateMobilePageCounter();
   }
 });
 </script>
+
 </body>
 </html>
